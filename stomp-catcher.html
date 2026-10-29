@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stomp Catcher — The Stuffy Boos</title>
+  <meta name="description" content="Catch the Stuffy Boos' falling paw prints and stomping boots across five levels, from sunny day to enchanted night, and become a Stuffy Boos hero!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="home game-page night">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
+        <span class="logo-mark" aria-hidden="true">🐾</span>
+        Stuffy Boos
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="characters.html">Characters</a>
+        <a href="games.html" aria-current="page">Games</a>
+        <a href="about.html">About</a>
+        <a href="stay-connected.html" class="nav-cta">Stay Connected</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="game" id="game" data-state="idle" data-level="1" aria-label="Stomp catching game">
+      <img class="game-bg"
+           src="images/pillow-patch-hq.jpg"
+           srcset="images/pillow-patch-hq-800.jpg 900w, images/pillow-patch-hq.jpg 1600w, images/pillow-patch-hq-2000.jpg 1969w"
+           sizes="100vw" width="1600" height="887" alt="">
+
+      <!-- Scenery for levels 2–5: pure CSS layers that fade in over the artwork -->
+      <div class="scene scene--2" aria-hidden="true"><i class="scene-tint"></i><i class="scene-sun"></i></div>
+      <div class="scene scene--3" aria-hidden="true"><i class="scene-tint"></i><i class="scene-stars"></i></div>
+      <div class="scene scene--4" aria-hidden="true"><i class="scene-tint"></i><i class="scene-stars"></i><i class="scene-moon"></i></div>
+      <div class="scene scene--5" aria-hidden="true"><i class="scene-tint"></i><i class="scene-aura"></i><i class="scene-stars"></i><i class="scene-moon"></i></div>
+
+      <div class="game-shade" aria-hidden="true"></div>
+      <div class="game-glow" aria-hidden="true"></div>
+      <div class="game-field" id="game-field" aria-hidden="true"></div>
+      <div class="game-fx" aria-hidden="true"></div>
+
+      <div class="game-hud">
+        <a class="hud-pill hud-back" href="games.html">← <span class="hide-sm">Back to </span>Games</a>
+        <div class="hud-stats">
+          <span class="hud-pill hud-level" id="game-level">Level 1</span>
+          <span class="hud-pill hud-score" id="game-score">0 / 15 ✨</span>
+          <span class="hud-pill" id="game-time">⏱ 20s</span>
+          <button class="hud-pill hud-sound" id="game-sound" type="button" aria-pressed="false" aria-label="Sound on. Tap to mute">🔊</button>
+        </div>
+      </div>
+
+      <!-- Start screen -->
+      <div class="game-overlay" id="game-start-screen">
+        <div class="game-card">
+          <span class="big-star big-foot shape shape--gold" data-shape="gold" aria-hidden="true"></span>
+          <h1>Catch the Stomps!</h1>
+          <p>Tap the Squad's falling paw prints before they stomp away. Reach the target on all five levels to save the Pillow Patch!</p>
+          <ul class="legend">
+            <li><span class="legend-paws"><span class="shape" data-shape="paw" data-symbol="moon"></span><span class="shape" data-shape="paw" data-symbol="heart"></span><span class="shape" data-shape="paw" data-symbol="star"></span></span><b>+1</b> Squad paw prints</li>
+            <li><span class="shape shape--boot" data-shape="boot" style="--c:#8b5cf6"></span><b>+2</b> Purple stomping boots</li>
+            <li><span class="shape shape--gold" data-shape="gold"></span><b>+3</b> Golden paws (they're quick!)</li>
+            <li><span class="shape shape--angry" data-shape="angry" style="--c:#ff5a5f"></span><b>−2</b> Angry red footprints: don't tap!</li>
+          </ul>
+          <button class="btn btn-pink" id="game-start" type="button">Start ✨</button>
+        </div>
+      </div>
+
+      <!-- Level intro + countdown -->
+      <div class="game-overlay" id="game-level-screen" hidden>
+        <div class="game-card">
+          <span class="level-kicker" id="level-title">Level 1</span>
+          <h2 id="level-target">Catch 15 Stomps!</h2>
+          <p id="level-tip"></p>
+          <span class="countdown" id="level-count" aria-live="polite">3</span>
+        </div>
+      </div>
+
+      <!-- Passed a level -->
+      <div class="game-overlay" id="game-pass-screen" hidden>
+        <div class="game-card" role="status" aria-live="polite">
+          <div class="celebrate" aria-hidden="true"></div>
+          <span class="big-star" aria-hidden="true">⭐</span>
+          <p class="end-msg">You did it! You collected <strong id="pass-score">0 Stomps</strong>!</p>
+          <button class="btn btn-pink" id="game-next" type="button">Next Level ➜</button>
+        </div>
+      </div>
+
+      <!-- Missed the target -->
+      <div class="game-overlay" id="game-fail-screen" hidden>
+        <div class="game-card" role="status" aria-live="polite">
+          <span class="big-star" aria-hidden="true">☁️</span>
+          <p class="end-msg">So close! You collected <strong id="fail-score">0 Stomps</strong> but needed <strong id="fail-target">15</strong>.</p>
+          <button class="btn btn-pink" id="game-retry" type="button">Try Again</button>
+        </div>
+      </div>
+
+      <!-- Finished level 5 -->
+      <div class="game-overlay game-overlay--win" id="game-win-screen" hidden>
+        <div class="celebrate celebrate--big" aria-hidden="true"></div>
+        <div class="game-card" role="status" aria-live="polite">
+          <span class="hero-star" aria-hidden="true"><i class="rays"></i>🌟</span>
+          <h2>You're a Stuffy Boos hero!</h2>
+          <p class="end-msg">You collected all the Stomps. The Pillow Patch is stomping!</p>
+          <p class="small"><strong id="win-total">0 Stomps</strong> across all five levels</p>
+          <button class="btn btn-pink" id="game-replay" type="button">Play Again</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

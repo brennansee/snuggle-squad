@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fear Finder — The Stuffy Boos</title>
+  <meta name="description" content="Grab the telescope and search the dark bedroom! Find the fears creeping towards the sleepyhead and tap them before they get there. Five levels — can you keep the night safe?">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+  /* ── Stage ─────────────────────────────────────────────────── */
+  .ff {
+    position: relative; isolation: isolate; overflow: hidden;
+    height: 100vh; height: 100svh;
+    background: #05020f;
+    -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+    --sx: 50%; --sy: 55%; --r: 120px;   /* telescope position and radius, set by the script */
+  }
+  .ff.is-playing { touch-action: none; cursor: none; }
+  .ff-bg {
+    position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; max-width: none;
+    object-fit: cover; object-position: 40% 55%;   /* keep the bed and the sleepyhead in view */
+  }
+  /* layers lined up with the picture (fears below the dark, hints above it) */
+  .ff-scene, .ff-hints { position: absolute; pointer-events: none; }
+  .ff-scene { z-index: 1; }
+  .ff-hints { z-index: 3; }
+
+  /* The dark: everything but the telescope's circle */
+  .ff-dark {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(circle var(--r) at var(--sx) var(--sy),
+      rgba(5, 2, 18, 0) 0 86%, rgba(5, 2, 18, 0.55) 93%, rgba(5, 2, 18, 0.95) 100%);
+  }
+  /* The telescope's brass rim, crosshair and lens glint */
+  .ff-ring {
+    position: absolute; z-index: 4; left: var(--sx); top: var(--sy);
+    width: calc(var(--r) * 2); aspect-ratio: 1; translate: -50% -50%;
+    border-radius: 50%; pointer-events: none;
+    border: 6px solid #c9a35a;
+    box-shadow: 0 0 0 2px #6b4a1a, inset 0 0 0 2px rgba(255, 230, 170, 0.5),
+                inset 0 0 30px rgba(255, 220, 140, 0.25), 0 0 26px rgba(255, 200, 100, 0.35);
+  }
+  .ff-ring::before {            /* crosshair */
+    content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: 0.35;
+    background:
+      linear-gradient(rgba(255, 235, 190, 0.9), rgba(255, 235, 190, 0.9)) center / 2px 22% no-repeat,
+      linear-gradient(rgba(255, 235, 190, 0.9), rgba(255, 235, 190, 0.9)) center / 22% 2px no-repeat;
+  }
+  .ff-ring::after {             /* a little lens glint */
+    content: ""; position: absolute; left: 18%; top: 14%; width: 22%; height: 10%;
+    border-radius: 50%; background: rgba(255, 255, 255, 0.18); rotate: -30deg;
+  }
+
+  /* ── Fears ─────────────────────────────────────────────────── */
+  .ff-fear {
+    position: absolute; left: 0; top: 0; width: var(--f); height: var(--f);
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
+    animation: ff-appear 0.7s ease-out both;
+  }
+  .ff-fear img { width: 100%; height: 100%; object-fit: contain; animation: ff-creep-bob 1.6s ease-in-out infinite alternate; }
+  @keyframes ff-appear { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ff-creep-bob { from { translate: 0 -3px; rotate: -4deg; } to { translate: 0 3px; rotate: 4deg; } }
+
+  /* the hint: glowing eyes blinking in the dark where a fear is hiding */
+  .ff-eyes {
+    position: absolute; left: 0; top: 0; width: 26px; height: 8px; translate: -50% -50%;
+    transition: opacity 0.2s;
+  }
+  .ff-eyes::before, .ff-eyes::after {
+    content: ""; position: absolute; top: 0; width: 8px; height: 8px; border-radius: 50%;
+    background: #fff2a8; box-shadow: 0 0 6px 2px rgba(255, 220, 110, 0.85);
+    animation: ff-blink 3.2s ease-in-out infinite;
+  }
+  .ff-eyes::before { left: 0; }
+  .ff-eyes::after  { right: 0; }
+  .ff-eyes.is-seen { opacity: 0; }
+  @keyframes ff-blink { 0%, 44%, 52%, 100% { transform: scaleY(1); } 48% { transform: scaleY(0.1); } }
+
+  /* the sleepyhead's speech bubble */
+  .ff-say {
+    position: absolute; z-index: 1; translate: -30% -100%; scale: 0.6; opacity: 0;
+    max-width: min(240px, 60vw); padding: 9px 14px; border-radius: 18px;
+    background: #fff; color: #2b1a4a;
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(0.95rem, 2.4vw, 1.2rem); line-height: 1.25;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    transform-origin: 30% 100%; transition: opacity 0.2s, scale 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .ff-say::after {
+    content: ""; position: absolute; left: 26%; bottom: -8px; width: 16px; height: 16px;
+    background: inherit; transform: rotate(45deg);
+  }
+  .ff-say.on { opacity: 1; scale: 1; }
+  .ff-say.worried { background: #ffe1e6; color: #7a1030; }
+
+  /* ── Effects ───────────────────────────────────────────────── */
+  .ff-fx { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+  .ff-pop {
+    position: absolute; translate: -50% -50%; white-space: nowrap;
+    font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; color: #ffd36e;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 14px rgba(255, 200, 100, 0.8);
+    animation: ff-pop 0.8s ease-out forwards;
+  }
+  @keyframes ff-pop { from { opacity: 0; transform: translateY(0) scale(0.6); } 20% { opacity: 1; transform: translateY(-8px) scale(1.1); } to { opacity: 0; transform: translateY(-60px) scale(1); } }
+  .ff-burst { position: absolute; width: 0; height: 0; }
+  .ff-burst i {
+    position: absolute; left: -7px; top: -7px; width: 14px; height: 14px;
+    background: var(--c); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    animation: ff-fly 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  }
+  @keyframes ff-fly { from { translate: 0 0; scale: 0.4; opacity: 1; } to { translate: var(--dx) var(--dy); scale: 1; opacity: 0; rotate: 90deg; } }
+  .ff-flash { position: absolute; inset: 0; z-index: 6; pointer-events: none; background: radial-gradient(circle, transparent 40%, rgba(255, 40, 60, 0.45)); animation: ff-flash 0.6s ease-out forwards; }
+  @keyframes ff-flash { from { opacity: 1; } to { opacity: 0; } }
+
+  /* ── HUD and screens (site styles, layered above the dark) ─── */
+  .ff .game-hud { z-index: 15; }
+  .ff .game-overlay { z-index: 20; }
+  .ff .hud-lives { font-size: clamp(1.25rem, 3vw, 1.6rem); letter-spacing: 2px; line-height: 1; }
+  .ff .tip-rotate { display: none; }
+  @media (orientation: portrait) and (max-width: 700px) { .ff .tip-rotate { display: block; } }
+  @media (max-width: 480px) { .ff .hud-pill { padding: 0.35rem 0.7rem; } }
+  </style>
+</head>
+<body class="home night">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
+        <span class="logo-mark" aria-hidden="true">🐾</span>
+        Stuffy Boos
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="characters.html">Characters</a>
+        <a href="games.html" aria-current="page">Games</a>
+        <a href="about.html">About</a>
+        <a href="stay-connected.html" class="nav-cta">Stay Connected</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="ff" id="ff" aria-label="Fear Finder game">
+      <img class="ff-bg" id="ff-bg" src="images/fears-game/bedroom.webp" width="1920" height="1080"
+           alt="A dark, cosy bedroom at night: a puppy stuffy asleep in bed by a glowing lamp, a half-open wardrobe, a curtained window and a moon-shaped rug">
+      <div class="ff-scene" id="ff-scene" aria-hidden="true"></div>
+      <div class="ff-dark" aria-hidden="true"></div>
+      <div class="ff-hints" id="ff-hints" aria-hidden="true">
+        <p class="ff-say" id="ff-say" role="status" aria-live="polite"></p>
+      </div>
+      <div class="ff-ring" aria-hidden="true"></div>
+      <div class="ff-fx" id="ff-fx" aria-hidden="true"></div>
+
+      <div class="game-hud">
+        <a class="hud-pill hud-back" href="games.html">← <span class="hide-sm">Back to </span>Games</a>
+        <div class="hud-stats">
+          <span class="hud-pill hud-level" id="ff-level">Level 1</span>
+          <span class="hud-pill" id="ff-score">0 / 4 🔭</span>
+          <span class="hud-pill hud-lives" id="ff-lives" aria-label="3 lives left">❤️❤️❤️</span>
+          <button class="hud-pill hud-sound" id="ff-sound" type="button" aria-pressed="false" aria-label="Sound on. Tap to mute">🔊</button>
+        </div>
+      </div>
+
+      <!-- Start -->
+      <div class="game-overlay" id="ff-start">
+        <div class="game-card">
+          <span class="big-star" aria-hidden="true">🔭</span>
+          <h1>Fear Finder</h1>
+          <p>It's dark in the bedroom, and fears are creeping towards the sleepyhead! Move the telescope to look around, and tap a fear to catch it.</p>
+          <p>👀 Look for little glowing eyes. That's where a fear is hiding!</p>
+          <p class="small">You have 3 hearts for the whole night.</p>
+          <p class="small tip-rotate">📱 Tip: turn your phone sideways to see the whole room.</p>
+          <button class="btn btn-pink" id="ff-btn-start" type="button">Start looking 🔭</button>
+        </div>
+      </div>
+
+      <!-- Level intro + countdown -->
+      <div class="game-overlay" id="ff-level-screen" hidden>
+        <div class="game-card">
+          <span class="level-kicker" id="ff-lv-tag">Level 1</span>
+          <h2 id="ff-lv-goal">Find 4 Fears!</h2>
+          <p id="ff-lv-tip"></p>
+          <span class="countdown" id="ff-count" aria-live="polite">3</span>
+        </div>
+      </div>
+
+      <!-- Level passed -->
+      <div class="game-overlay" id="ff-pass" hidden>
+        <div class="game-card" role="status" aria-live="polite">
+          <span class="big-star" aria-hidden="true">⭐</span>
+          <h2>Level complete!</h2>
+          <p class="end-msg">You found <strong id="ff-pass-n">0 fears</strong> and kept the sleepyhead safe!</p>
+          <button class="btn btn-pink" id="ff-btn-next" type="button">Next level ➜</button>
+        </div>
+      </div>
+
+      <!-- Out of hearts -->
+      <div class="game-overlay" id="ff-over" hidden>
+        <div class="game-card" role="status" aria-live="polite">
+          <span class="big-star" aria-hidden="true">😮</span>
+          <h2>Oh no, they woke up!</h2>
+          <p class="end-msg">The fears got through. You reached <strong id="ff-over-lvl">Level 1</strong> and found <strong id="ff-over-n">0 fears</strong>.</p>
+          <button class="btn btn-pink" id="ff-btn-retry" type="button">Try again</button>
+        </div>
+      </div>
+
+      <!-- Won -->
+      <div class="game-overlay" id="ff-win" hidden>
+        <div class="game-card" role="status" aria-live="polite">
+          <span class="hero-star" aria-hidden="true"><i class="rays"></i>🌟</span>
+          <h2>Fear Finder champion!</h2>
+          <p class="end-msg">You found every fear and kept the sleepyhead safe all night!</p>
+          <p class="small"><strong id="ff-win-n">0 fears</strong> found across all 5 levels</p>
+          <button class="btn btn-pink" id="ff-btn-replay" type="button">Play again 🌟</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <a class="logo" href="index.html">Stuffy Boos</a>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="index.html">Home</a><a href="characters.html">Characters</a><a href="games.html">Games</a><a href="about.html">About</a><a href="stay-connected.html">Stay Connected</a>
+      </nav>
+      <p class="small" style="color:#cbbdf0">© <span data-year>2026</span> The Stuffy Boos. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+  /* Fear Finder: sweep the telescope around the dark bedroom and tap the fears
+     before they creep up to the sleepyhead. Plain JS, no libraries; sounds are
+     synthesised with Web Audio. Everything lives inside this function so its names
+     can't clash with the site's shared js/main.js. */
+  (() => {
+    const $ = (id) => document.getElementById(id);
+    const stage = $('ff'), bg = $('ff-bg'), scene = $('ff-scene'), hints = $('ff-hints'), fx = $('ff-fx');
+    const sayEl = $('ff-say');
+    const screens = { start: $('ff-start'), level: $('ff-level-screen'), pass: $('ff-pass'), over: $('ff-over'), win: $('ff-win') };
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const pickOne = (list) => list[Math.floor(Math.random() * list.length)];
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const fearsText = (n) => `${n} ${n === 1 ? 'fear' : 'fears'}`;
+
+    /* ── Settings ──────────────────────────────────────────────── */
+    // goal: fears to find · max: fears out at once · creep: ms to reach the bed · every: ms between new fears
+    const LEVELS = [
+      { goal: 4,  max: 1, creep: 15000, every: 2600, tip: 'Move the telescope to look around. Look for little glowing eyes!' },
+      { goal: 6,  max: 2, creep: 13000, every: 2400, tip: 'Two fears can creep at once now.' },
+      { goal: 8,  max: 2, creep: 11000, every: 2000, tip: "They're creeping a little faster…" },
+      { goal: 10, max: 3, creep: 9500,  every: 1800, tip: 'Three fears at once! Keep sweeping the room.' },
+      { goal: 12, max: 4, creep: 8000,  every: 1500, tip: 'Last level! Keep the sleepyhead safe all night!' },
+    ];
+    const LIVES = 3;   // for the whole night
+
+    // Where things are in the bedroom picture, as % of its width and height
+    const SLEEPYHEAD = { x: 39, y: 57 };   // the puppy asleep on the pillow
+    const F = 'images/fears-game/';
+    const SPOTS = [
+      { x: 15.5, y: 40, fear: 'clothes' },     // in the open wardrobe
+      { x: 15,   y: 62, fear: 'shadow' },      // bottom of the wardrobe (where the eyes are)
+      { x: 4,    y: 30, fear: 'door' },        // the left wall
+      { x: 6,    y: 76, fear: 'bed-monster' }, // behind the pouffe
+      { x: 33,   y: 20, fear: 'shadow' },      // above the bookshelf
+      { x: 52,   y: 22, fear: 'lightbulb' },   // by the spooky picture
+      { x: 44,   y: 6,  fear: 'lightbulb' },   // up by the ceiling
+      { x: 52,   y: 86, fear: 'bed-monster' }, // under the bed
+      { x: 30,   y: 88, fear: 'shadow' },      // on the rug
+      { x: 65,   y: 40, fear: 'door' },        // behind the curtain
+      { x: 82,   y: 32, fear: 'storm' },       // outside the window
+      { x: 90,   y: 76, fear: 'shadow' },      // by the ghost cushion
+      { x: 96,   y: 48, fear: 'storm' },       // the far curtain
+      // closer in, around the bed (these are all a phone held upright can see)
+      { x: 36,   y: 30, fear: 'shadow' },      // above the headboard
+      { x: 47,   y: 34, fear: 'lightbulb' },   // on the wall by the bed
+      { x: 35,   y: 80, fear: 'bed-monster' }, // beside the bed
+      { x: 44,   y: 93, fear: 'bed-monster' }, // on the rug
+      { x: 50,   y: 72, fear: 'shadow' },      // at the foot of the bed
+    ];
+    const FEAR_NAMES = { storm: 'Storm Cloud', clothes: 'Creepy Coat', 'bed-monster': 'Bed Monster', door: 'Creaking Door', lightbulb: 'Flickering Light', shadow: 'Scary Shadow' };
+
+    // preload the fear pictures
+    Object.keys(FEAR_NAMES).forEach((k) => { const i = new Image(); i.src = `${F}${k}.webp`; });
+
+    /* ── Fit the picture layers to the cropped picture ─────────── */
+    const geo = { left: 0, top: 0, w: 1, h: 1 };
+    function fit() {
+      const W = stage.clientWidth, H = stage.clientHeight;
+      const iw = bg.naturalWidth || 1920, ih = bg.naturalHeight || 1080;
+      const k = Math.max(W / iw, H / ih);
+      const [px, py] = getComputedStyle(bg).objectPosition.split(' ').map((v) => parseFloat(v) / 100);
+      geo.w = iw * k; geo.h = ih * k;
+      geo.left = (W - geo.w) * (isNaN(px) ? 0.5 : px);
+      geo.top = (H - geo.h) * (isNaN(py) ? 0.5 : py);
+      for (const el of [scene, hints]) {
+        Object.assign(el.style, { left: geo.left + 'px', top: geo.top + 'px', width: geo.w + 'px', height: geo.h + 'px' });
+      }
+      const r = clamp(Math.min(W, H) * 0.17, 72, 150);
+      stage.style.setProperty('--r', r + 'px');
+      scope.r = r;
+      fearSize = clamp(geo.w * 0.075, 64, 130);
+      placeSay();
+    }
+    // a spot in picture % → px within the picture layers
+    const toPx = (p) => ({ x: (p.x / 100) * geo.w, y: (p.y / 100) * geo.h });
+    // only use hiding spots this screen can actually show (phones in portrait crop the sides)
+    function visibleSpots() {
+      const W = stage.clientWidth, H = stage.clientHeight;
+      const x0 = (-geo.left / geo.w) * 100 + 4, x1 = ((W - geo.left) / geo.w) * 100 - 4;
+      const y0 = ((-geo.top + 150) / geo.h) * 100, y1 = ((H - geo.top) / geo.h) * 100 - 4; // keep clear of the HUD
+      return SPOTS.filter((s) => s.x >= x0 && s.x <= x1 && s.y >= y0 && s.y <= y1);
+    }
+
+    /* ── The telescope ────────────────────────────────────────── */
+    const scope = { x: 0, y: 0, r: 120 };
+    function moveScope(clientX, clientY) {
+      const b = stage.getBoundingClientRect();
+      scope.x = clientX - b.left; scope.y = clientY - b.top;
+      stage.style.setProperty('--sx', scope.x + 'px');
+      stage.style.setProperty('--sy', scope.y + 'px');
+    }
+    stage.addEventListener('pointermove', (e) => { if (state === 'playing') moveScope(e.clientX, e.clientY); });
+    stage.addEventListener('pointerdown', (e) => {
+      if (state !== 'playing') return;
+      moveScope(e.clientX, e.clientY);
+      tryCatch(e.clientX, e.clientY);
+    });
+
+    /* ── Sound (synthesised) ──────────────────────────────────── */
+    let ctx = null, muted = false;
+    const soundBtn = $('ff-sound');
+    function initSound() {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!ctx) ctx = new AC();
+      if (ctx.state === 'suspended') ctx.resume();
+    }
+    function tone(freq, at, dur, vol, type = 'triangle', slideTo = 0) {
+      if (!ctx || muted) return;
+      const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + 0.05);
+    }
+    const NOTES = [523.25, 587.33, 659.25, 783.99, 880];
+    const SFX = {
+      creep: () => tone(110, 0, 0.6, 0.05, 'sine', 82),                // a low, soft "something's here"
+      catch: () => { const f = pickOne(NOTES); tone(f, 0, 0.25, 0.13); tone(f * 1.5, 0.06, 0.3, 0.1); tone(f * 3, 0.06, 0.2, 0.03, 'sine'); },
+      hit:   () => { tone(196, 0, 0.35, 0.2, 'sine', 98); tone(155.56, 0.1, 0.5, 0.12, 'triangle', 92); },
+      count: () => tone(659.25, 0, 0.15, 0.09),
+      go:    () => { tone(1046.5, 0, 0.35, 0.1); tone(1318.5, 0.05, 0.35, 0.06); },
+      pass:  () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.12, 0.45, 0.11)),
+      win:   () => [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, i) => tone(f, i * 0.13 + (i > 3 ? 0.12 : 0), i === 6 ? 1.1 : 0.45, 0.12)),
+      over:  () => [392, 349.23, 311.13, 261.63].forEach((f, i) => tone(f, i * 0.24, 0.55, 0.1)),
+    };
+    soundBtn.addEventListener('click', () => {
+      muted = !muted;
+      soundBtn.textContent = muted ? '🔇' : '🔊';
+      soundBtn.setAttribute('aria-pressed', String(muted));
+      soundBtn.setAttribute('aria-label', muted ? 'Sound off. Tap to unmute' : 'Sound on. Tap to mute');
+      if (!muted) initSound();
+    });
+
+    /* ── The sleepyhead's reactions ───────────────────────────── */
+    const CALM = ['Zzz… 💤', 'Mmm… so cosy…', 'Zzz… thank you…', 'Sweet dreams… 🌙'];
+    const WORRIED = [['Waaah! I\'m awake! 😱'], ['I\'m really scared… 😟'], ['Huh? What was that?! 😮']]; // by hearts left
+    let sayTmr = null, lastSay = 0;
+    function placeSay() {
+      const p = toPx(SLEEPYHEAD);
+      sayEl.style.left = p.x + 'px';
+      sayEl.style.top = (p.y - geo.h * 0.05) + 'px';
+    }
+    function say(text, ms = 1800, worried = false) {
+      sayEl.textContent = text;
+      sayEl.classList.toggle('worried', worried);
+      sayEl.classList.add('on');
+      lastSay = performance.now();
+      clearTimeout(sayTmr);
+      sayTmr = setTimeout(() => sayEl.classList.remove('on'), ms);
+    }
+
+    /* ── Game state ───────────────────────────────────────────── */
+    let state = 'idle';           // idle | countdown | playing | between
+    let level = 0, found = 0, totalFound = 0, lives = LIVES;
+    let fears = [], spawnTmr = null, loopId = null, fearSize = 90, pausedAt = null;
+
+    function updateHUD() {
+      const lv = LEVELS[level];
+      $('ff-level').textContent = `Level ${level + 1}`;
+      $('ff-score').textContent = `${found} / ${lv.goal} 🔭`;
+      $('ff-lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(LIVES - lives);
+      $('ff-lives').setAttribute('aria-label', `${lives} ${lives === 1 ? 'life' : 'lives'} left`);
+    }
+    function show(name) { for (const [k, el] of Object.entries(screens)) el.hidden = k !== name; }
+
+    /* ── Fears ────────────────────────────────────────────────── */
+    function spawn() {
+      const lv = LEVELS[level];
+      if (state !== 'playing') return;
+      if (fears.length < lv.max) {
+        const taken = new Set(fears.map((f) => f.spot));
+        const free = visibleSpots().filter((s) => !taken.has(s));
+        if (free.length) {
+          const spot = pickOne(free);
+          const el = document.createElement('div');
+          el.className = 'ff-fear';
+          el.style.setProperty('--f', fearSize + 'px');
+          el.innerHTML = `<img src="${F}${spot.fear}.webp" alt="${FEAR_NAMES[spot.fear]}" draggable="false">`;
+          scene.appendChild(el);
+          const eyes = document.createElement('span');
+          eyes.className = 'ff-eyes';
+          hints.appendChild(eyes);
+          fears.push({ spot, el, eyes, start: performance.now(), creep: lv.creep * rnd(0.9, 1.1) });
+          SFX.creep();
+        }
+      }
+      spawnTmr = setTimeout(spawn, lv.every * rnd(0.8, 1.2));
+    }
+
+    function loop(now) {
+      if (state === 'playing' && pausedAt === null) {
+        const from = (f) => toPx(f.spot), to = toPx(SLEEPYHEAD);
+        for (const f of [...fears]) {
+          if (state !== 'playing') break;          // e.g. the last heart just went
+          const p = clamp((now - f.start) / f.creep, 0, 1);
+          const a = from(f);
+          // creep in, slowly at first, with a little side-to-side sneak
+          const ease = p * p * (3 - 2 * p);
+          const sneak = Math.sin(p * Math.PI * 3) * geo.w * 0.012 * (1 - p);
+          f.x = a.x + (to.x - a.x) * ease + sneak;
+          f.y = a.y + (to.y - a.y) * ease;
+          const scale = 0.75 + 0.25 * p;
+          f.el.style.transform = `translate(${f.x - fearSize / 2}px, ${f.y - fearSize / 2}px) scale(${scale})`;
+          f.eyes.style.transform = `translate(${f.x}px, ${f.y - fearSize * 0.12}px)`;
+          // eyes only show while the fear is out in the dark, not when the telescope is on it
+          const sx = f.x + geo.left, sy = f.y + geo.top;
+          f.eyes.classList.toggle('is-seen', Math.hypot(sx - scope.x, sy - scope.y) < scope.r);
+          if (p >= 1) reachedBed(f);
+        }
+      }
+      loopId = requestAnimationFrame(loop);
+    }
+
+    function removeFear(f) {
+      fears = fears.filter((x) => x !== f);
+      f.el.remove(); f.eyes.remove();
+    }
+
+    function tryCatch(cx, cy) {
+      // the tap has to land on a fear, and (as the telescope follows the tap) that fear is in view
+      for (const f of fears) {
+        const r = f.el.getBoundingClientRect();
+        const pad = 22;
+        if (cx >= r.left - pad && cx <= r.right + pad && cy >= r.top - pad && cy <= r.bottom + pad) {
+          caught(f, cx, cy);
+          return;
+        }
+      }
+    }
+
+    function caught(f, cx, cy) {
+      removeFear(f);
+      found++; totalFound++;
+      updateHUD();
+      SFX.catch();
+      const b = stage.getBoundingClientRect();
+      burst(cx - b.left, cy - b.top);
+      pop(cx - b.left, cy - b.top, '+1 ✨');
+      if (found >= LEVELS[level].goal) return levelDone();
+      if (performance.now() - lastSay > 2500 && Math.random() < 0.4) say(pickOne(CALM), 1500);
+    }
+
+    function reachedBed(f) {
+      if (state !== 'playing') return;
+      removeFear(f);
+      lives = Math.max(0, lives - 1);
+      updateHUD();
+      SFX.hit();
+      const fl = document.createElement('div');
+      fl.className = 'ff-flash';
+      stage.appendChild(fl);
+      setTimeout(() => fl.remove(), 650);
+      say(pickOne(WORRIED[lives]), 2000, true);
+      if (lives <= 0) gameOver();
+    }
+
+    function burst(x, y) {
+      const b = document.createElement('div');
+      b.className = 'ff-burst';
+      b.style.cssText = `left:${x}px;top:${y}px`;
+      const colors = ['#ffd24d', '#ff8cc6', '#b28cff', '#6cc4ff'];
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2, d = rnd(40, 80);
+        const p = document.createElement('i');
+        p.style.cssText = `--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d).toFixed(0)}px;--c:${colors[i % 4]}`;
+        b.appendChild(p);
+      }
+      fx.appendChild(b);
+      setTimeout(() => b.remove(), 750);
+    }
+    function pop(x, y, text) {
+      const t = document.createElement('span');
+      t.className = 'ff-pop';
+      t.style.cssText = `left:${x}px;top:${y}px`;
+      t.textContent = text;
+      fx.appendChild(t);
+      setTimeout(() => t.remove(), 850);
+    }
+
+    /* ── Level flow ───────────────────────────────────────────── */
+    function clearLevel() {
+      clearTimeout(spawnTmr);
+      [...fears].forEach(removeFear);
+    }
+
+    function startLevel(n) {
+      initSound();
+      clearLevel();
+      level = n; found = 0;
+      updateHUD();
+      const lv = LEVELS[n];
+      $('ff-lv-tag').textContent = `Level ${n + 1}`;
+      $('ff-lv-goal').textContent = `Find ${lv.goal} Fears!`;
+      $('ff-lv-tip').textContent = lv.tip;
+      state = 'countdown';
+      stage.classList.remove('is-playing');
+      show('level');
+      const steps = ['3', '2', '1', 'Go!'];
+      const next = () => {
+        const s = steps.shift();
+        if (!s) {
+          show(null);
+          state = 'playing';
+          stage.classList.add('is-playing');
+          moveScope(stage.getBoundingClientRect().left + stage.clientWidth / 2, stage.getBoundingClientRect().top + stage.clientHeight * 0.55);
+          say(pickOne(['Night night… 😴', 'Keep me safe, okay? 🧸', 'So sleepy… 💤']), 1800);
+          spawnTmr = setTimeout(spawn, 600);
+          return;
+        }
+        $('ff-count').textContent = s;
+        s === 'Go!' ? SFX.go() : SFX.count();
+        setTimeout(next, s === 'Go!' ? 600 : 900);
+      };
+      next();
+    }
+
+    function levelDone() {
+      state = 'between';
+      stage.classList.remove('is-playing');
+      clearLevel();
+      say('Thank you for keeping me safe! 💖', 1600);
+      if (level === LEVELS.length - 1) {
+        SFX.win();
+        $('ff-win-n').textContent = fearsText(totalFound);
+        setTimeout(() => { show('win'); $('ff-btn-replay').focus({ preventScroll: true }); }, 600);
+      } else {
+        SFX.pass();
+        $('ff-pass-n').textContent = fearsText(found);
+        setTimeout(() => { show('pass'); $('ff-btn-next').focus({ preventScroll: true }); }, 600);
+      }
+    }
+
+    function gameOver() {
+      state = 'between';
+      stage.classList.remove('is-playing');
+      clearLevel();
+      SFX.over();
+      $('ff-over-lvl').textContent = `Level ${level + 1}`;
+      $('ff-over-n').textContent = fearsText(totalFound);
+      setTimeout(() => { show('over'); $('ff-btn-retry').focus({ preventScroll: true }); }, 800);
+    }
+
+    function newGame() { lives = LIVES; totalFound = 0; startLevel(0); }
+    $('ff-btn-start').addEventListener('click', newGame);
+    $('ff-btn-retry').addEventListener('click', newGame);
+    $('ff-btn-replay').addEventListener('click', newGame);
+    $('ff-btn-next').addEventListener('click', () => startLevel(level + 1));
+
+    // Pause while the page is hidden (switching apps or tabs): everything carries on where it left off
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (state !== 'playing') return;
+        pausedAt = performance.now();
+        clearTimeout(spawnTmr);
+        if (ctx) ctx.suspend();
+      } else if (pausedAt !== null) {
+        const gap = performance.now() - pausedAt;
+        fears.forEach((f) => { f.start += gap; });
+        pausedAt = null;
+        spawnTmr = setTimeout(spawn, 800);
+        if (ctx) ctx.resume();
+      }
+    });
+
+    window.addEventListener('resize', fit);
+    if (bg.complete) fit(); else bg.addEventListener('load', fit);
+    fit();
+    moveScope(stage.getBoundingClientRect().left + stage.clientWidth / 2, stage.getBoundingClientRect().top + stage.clientHeight * 0.55);
+    updateHUD();
+    loopId = requestAnimationFrame(loop);
+  })();
+  </script>
+</body>
+</html>

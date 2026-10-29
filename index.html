@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Stuffy Boos — Coming Soon to The Pillow Patch</title>
+  <meta name="description" content="The Stuffy Boos are brave little heroes living in the magical Pillow Patch, ready to stomp out big feelings and save the day. Coming soon — sign up to be the first to know.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="home night">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
+        <span class="logo-mark" aria-hidden="true">🐾</span>
+        Stuffy Boos
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="characters.html">Characters</a>
+        <a href="games.html">Games</a>
+        <a href="about.html">About</a>
+        <a href="stay-connected.html" class="nav-cta">Stay Connected</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO: full-screen scene with centred poster-style copy -->
+    <section class="hero">
+      <img class="hero-bg"
+           src="images/pillow-patch2.webp"
+           srcset="images/pillow-patch2-900.webp 900w, images/pillow-patch2.webp 1376w"
+           sizes="100vw" width="1376" height="768"
+           alt="The Pillow Patch at dusk: the Stuffy Boos' cloud-topped tower glowing with warm lights, surrounded by patchwork hills, hanging golden stars and a smiling sun"
+           fetchpriority="high">
+      <div class="hero-shade" aria-hidden="true"></div>
+      <!-- Glowing lights, glints and fireflies, pinned to the picture by js/landing.js -->
+      <div class="hero-scene" aria-hidden="true"></div>
+      <div class="sky" data-sky="hero" aria-hidden="true"></div>
+      <!-- Shooting stars streak through here -->
+      <div class="hero-shooting" aria-hidden="true"></div>
+
+      <div class="wrap hero-copy">
+        <span class="badge badge-night">✨ Coming soon to The Pillow Patch</span>
+        <h1><span>When fears come out at night,</span> <span class="accent">the Stuffy Boos make it right</span></h1>
+        <p class="lede">Meet the Stuffy Boos — brave little heroes living in the magical Pillow Patch, ready to stomp out big feelings and save the day.</p>
+        <div class="btn-row">
+          <a class="btn btn-gold" href="stay-connected.html">🔔 Tell me when it's ready</a>
+          <a class="btn btn-ghost" href="characters.html">Meet the Stuffy Boos</a>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#squad" aria-label="Scroll down">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </section>
+
+    <!-- MEET THE SQUAD intro (text only until character art arrives) -->
+    <section class="intro" id="squad">
+      <div class="sky" data-sky="night" aria-hidden="true"></div>
+      <div class="wrap center">
+        <h2>Meet the Stuffy Boos</h2>
+        <p class="lede">Peek, Boo Boo and the Stuffy Boos Squad. One big mission: chasing bedtime fears away.</p>
+        <a class="btn btn-ghost" href="characters.html">Meet the Squad</a>
+      </div>
+    </section>
+
+    <!-- WORLD teaser -->
+    <section class="section">
+      <div class="wrap two-col">
+        <div class="card">
+          <h2>A magical world to explore</h2>
+          <p>High above the clouds lies the Pillow Patch, a soft and magical world of patchwork hills, floating clouds and twinkling stars. When fears creep out at bedtime, the Stuffy Boos are always ready to save the day!</p>
+          <a class="btn btn-gold" href="about.html">Explore The Pillow Patch</a>
+        </div>
+        <div class="card">
+          <h3>🏰 Stuffy Boos HQ</h3>
+          <p>Their cloud-top tower is the heart of the Pillow Patch: part clubhouse, part mission control, and always ready for the next adventure.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="cta-band">
+          <div class="sky" data-sky="night" aria-hidden="true"></div>
+          <h2>Be the first to know</h2>
+          <p>Parents, pop your email in and we'll send one happy note when the Stuffy Boos are ready to meet you.</p>
+          <a class="btn btn-gold" href="stay-connected.html">Sign me up ✨</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <a class="logo" href="index.html">Stuffy Boos</a>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="index.html">Home</a><a href="characters.html">Characters</a><a href="games.html">Games</a><a href="about.html">About</a><a href="stay-connected.html">Stay Connected</a>
+      </nav>
+      <p class="small" style="color:#cbbdf0">© <span data-year>2026</span> The Stuffy Boos. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stay Connected — The Stuffy Boos</title>
+  <meta name="description" content="Parents: sign up to be notified when the Stuffy Boos launch.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="night">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
+        <span class="logo-mark" aria-hidden="true">🐾</span>
+        Stuffy Boos
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="characters.html">Characters</a>
+        <a href="games.html">Games</a>
+        <a href="about.html">About</a>
+        <a href="stay-connected.html" class="nav-cta" aria-current="page">Stay Connected</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-head">
+      <span class="cloud" style="--w:130px; top:10%; left:-20px; --t:21s"></span>
+      <span class="star" style="top:18%; right:16%; --s:24px"></span>
+      <span class="star" style="top:50%; left:12%; --s:16px; --d:1s"></span>
+      <div class="wrap">
+        <span class="badge">🔔 Launching soon</span>
+        <h1>Stay Connected</h1>
+        <p class="lede">Be the first to hear when the Stuffy Boos arrive. Just one happy note, no spam.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="card signup">
+          <form id="signup-form" novalidate>
+            <div class="field">
+              <label for="name">Your first name <span class="small">(optional)</span></label>
+              <input type="text" id="name" name="name" autocomplete="given-name" placeholder="Sam">
+            </div>
+            <div class="field">
+              <label for="email">Email address</label>
+              <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+            </div>
+            <!-- honeypot: real people never see this -->
+            <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <div class="field">
+              <label class="check">
+                <input type="checkbox" name="adult" value="yes">
+                <span>I'm a parent or guardian (18+) and I'd like to hear about the Stuffy Boos launch.</span>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-pink" style="width:100%">Notify me ✨</button>
+            <p class="form-msg" role="status" aria-live="polite"></p>
+            <p class="small center">We only use your email to tell you about the Stuffy Boos, and you can unsubscribe any time. This sign-up is for grown-ups only.</p>
+          </form>
+
+          <div id="signup-success" class="form-success" hidden>
+            <span class="big">🌙</span>
+            <h2>You're on the list!</h2>
+            <p>Thank you! We'll send word as soon as the Stuffy Boos are ready. See you in the Pillow Patch!</p>
+            <a class="btn" href="characters.html">Meet the Squad</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <a class="logo" href="index.html">Stuffy Boos</a>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="index.html">Home</a><a href="characters.html">Characters</a><a href="games.html">Games</a><a href="about.html">About</a><a href="stay-connected.html">Stay Connected</a>
+      </nav>
+      <p class="small" style="color:#cbbdf0">© <span data-year>2026</span> The Stuffy Boos. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

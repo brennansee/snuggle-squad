@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peek-a-Boo! — The Stuffy Boos</title>
+  <meta name="description" content="Help Peek find Boo! Tap the pillows to see what's hiding underneath, and watch out for a big BOO!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="home game-page night">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
+        <span class="logo-mark" aria-hidden="true">🐾</span>
+        Stuffy Boos
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="characters.html">Characters</a>
+        <a href="games.html" aria-current="page">Games</a>
+        <a href="about.html">About</a>
+        <a href="stay-connected.html" class="nav-cta">Stay Connected</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="pb" id="pb" data-state="idle" aria-label="Peek-a-Boo game">
+      <img class="pb-bg" id="pb-bg" src="images/pillow-patch-hq.jpg" alt="">
+      <div class="pb-shade" aria-hidden="true"></div>
+
+      <div class="game-hud">
+        <a class="hud-pill hud-back" href="games.html">← <span class="hide-sm">Back to </span>Games</a>
+        <div class="hud-stats">
+          <span class="hud-pill hud-level" id="pb-round">Round 1 of 4</span>
+          <button class="hud-pill hud-sound" id="pb-sound" type="button" aria-pressed="false" aria-label="Sound on. Tap to mute">🔊</button>
+        </div>
+      </div>
+
+      <div class="pb-stage">
+        <!-- Peek: the player's buddy, reacting to every pillow -->
+        <div class="pb-peek" id="pb-peek" data-pose="searching">
+          <p class="pb-say" id="pb-say" role="status" aria-live="polite"></p>
+          <span class="pb-dust" aria-hidden="true"></span>
+          <img id="pb-peek-img" alt="Peek">
+          <span class="pb-dizzy" aria-hidden="true">💫⭐💫</span>
+        </div>
+
+        <!-- The pillows (built by js/peekaboo.js) -->
+        <div class="pb-bed">
+          <div class="pb-pillows" id="pb-pillows"></div>
+        </div>
+      </div>
+
+      <!-- Start -->
+      <div class="game-overlay" id="pb-start-screen">
+        <div class="game-card">
+          <h1>Peek-a-Boo!</h1>
+          <p>Boo is hiding under one of the pillows. Tap the pillows to help Peek find him… but get ready for a surprise!</p>
+          <button class="btn btn-pink" id="pb-start" type="button">Let's look! 🔭</button>
+        </div>
+      </div>
+
+      <!-- Found Boo -->
+      <div class="game-overlay" id="pb-found-screen" hidden>
+        <div class="game-card" role="status" aria-live="polite">
+          <div class="celebrate" aria-hidden="true"></div>
+          <h2>You found Boo! 🎉</h2>
+          <p class="end-msg" id="pb-found-msg"></p>
+          <button class="btn btn-pink" id="pb-next" type="button">Next round ➜</button>
+        </div>
+      </div>
+
+      <!-- All rounds done -->
+      <div class="game-overlay game-overlay--win" id="pb-win-screen" hidden>
+        <div class="celebrate celebrate--big" aria-hidden="true"></div>
+        <div class="game-card" role="status" aria-live="polite">
+          <span class="hero-star" aria-hidden="true"><i class="rays"></i>🏆</span>
+          <h2>Peek-a-Boo champion!</h2>
+          <p class="end-msg">You found Boo in every round. Peek is so proud (and just a little bit dizzy)!</p>
+          <button class="btn btn-pink" id="pb-replay" type="button">Play again</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script src="js/peekaboo.js"></script>
+</body>
+</html>
