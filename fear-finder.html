@@ -60,7 +60,9 @@
     filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
     animation: ff-appear 0.7s ease-out both;
   }
-  .ff-fear img { width: 100%; height: 100%; object-fit: contain; animation: ff-creep-bob 1.6s ease-in-out infinite alternate; }
+  .ff-fear img { width: 100%; height: 100%; object-fit: contain; animation: ff-creep-bob var(--bob, 1.6s) ease-in-out infinite alternate; }
+  /* the art all leans to the right, so fears coming from the right are mirrored to lean towards the bed */
+  .ff-fear.is-flipped img { transform: scaleX(-1); }
   @keyframes ff-appear { from { opacity: 0; } to { opacity: 1; } }
   @keyframes ff-creep-bob { from { translate: 0 -3px; rotate: -4deg; } to { translate: 0 3px; rotate: 4deg; } }
 
@@ -250,11 +252,11 @@
     /* ── Settings ──────────────────────────────────────────────── */
     // goal: fears to find · max: fears out at once · creep: ms to reach the bed · every: ms between new fears
     const LEVELS = [
-      { goal: 4,  max: 1, creep: 15000, every: 2600, tip: 'Move the telescope to look around. Look for little glowing eyes!' },
-      { goal: 6,  max: 2, creep: 13000, every: 2400, tip: 'Two fears can creep at once now.' },
-      { goal: 8,  max: 2, creep: 11000, every: 2000, tip: "They're creeping a little faster…" },
-      { goal: 10, max: 3, creep: 9500,  every: 1800, tip: 'Three fears at once! Keep sweeping the room.' },
-      { goal: 12, max: 4, creep: 8000,  every: 1500, tip: 'Last level! Keep the sleepyhead safe all night!' },
+      { goal: 4,  max: 1, creep: 13000, every: 2600, tip: 'Move the telescope to look around. Look for little glowing eyes!' },
+      { goal: 6,  max: 2, creep: 10500, every: 2300, tip: "Two fears can creep at once now, and they're getting quicker!" },
+      { goal: 8,  max: 2, creep: 8500,  every: 1900, tip: "They're creeping even faster…" },
+      { goal: 10, max: 3, creep: 7000,  every: 1700, tip: 'Three fears at once, and they are speedy! Keep sweeping the room.' },
+      { goal: 12, max: 4, creep: 5800,  every: 1400, tip: 'Last level! The fastest fears of all. Keep the sleepyhead safe!' },
     ];
     const LIVES = 3;   // for the whole night
 
@@ -262,30 +264,30 @@
     const SLEEPYHEAD = { x: 39, y: 57 };   // the puppy asleep on the pillow
     const F = 'images/fears-game/';
     const SPOTS = [
-      { x: 15.5, y: 40, fear: 'clothes' },     // in the open wardrobe
+      { x: 15.5, y: 40, fear: 'clown' },       // in the open wardrobe
       { x: 15,   y: 62, fear: 'shadow' },      // bottom of the wardrobe (where the eyes are)
-      { x: 4,    y: 30, fear: 'door' },        // the left wall
+      { x: 4,    y: 30, fear: 'spider' },      // the left wall
       { x: 6,    y: 76, fear: 'bed-monster' }, // behind the pouffe
-      { x: 33,   y: 20, fear: 'shadow' },      // above the bookshelf
-      { x: 52,   y: 22, fear: 'lightbulb' },   // by the spooky picture
-      { x: 44,   y: 6,  fear: 'lightbulb' },   // up by the ceiling
+      { x: 33,   y: 20, fear: 'alarm' },       // above the bookshelf
+      { x: 52,   y: 22, fear: 'spider' },      // by the spooky picture
+      { x: 44,   y: 6,  fear: 'spider' },      // up by the ceiling
       { x: 52,   y: 86, fear: 'bed-monster' }, // under the bed
       { x: 30,   y: 88, fear: 'shadow' },      // on the rug
-      { x: 65,   y: 40, fear: 'door' },        // behind the curtain
+      { x: 65,   y: 40, fear: 'clown' },       // behind the curtain
       { x: 82,   y: 32, fear: 'storm' },       // outside the window
       { x: 90,   y: 76, fear: 'shadow' },      // by the ghost cushion
       { x: 96,   y: 48, fear: 'storm' },       // the far curtain
       // closer in, around the bed (these are all a phone held upright can see)
       { x: 36,   y: 30, fear: 'shadow' },      // above the headboard
-      { x: 47,   y: 34, fear: 'lightbulb' },   // on the wall by the bed
+      { x: 47,   y: 34, fear: 'alarm' },       // on the wall by the bed
       { x: 35,   y: 80, fear: 'bed-monster' }, // beside the bed
       { x: 44,   y: 93, fear: 'bed-monster' }, // on the rug
       { x: 50,   y: 72, fear: 'shadow' },      // at the foot of the bed
     ];
-    const FEAR_NAMES = { storm: 'Storm Cloud', clothes: 'Creepy Coat', 'bed-monster': 'Bed Monster', door: 'Creaking Door', lightbulb: 'Flickering Light', shadow: 'Scary Shadow' };
+    const FEAR_NAMES = { storm: 'Storm Cloud', 'bed-monster': 'Bed Monster', shadow: 'Scary Shadow', spider: 'Spider', clown: 'Clown', alarm: 'Alarm Clock' };
 
     // preload the fear pictures
-    Object.keys(FEAR_NAMES).forEach((k) => { const i = new Image(); i.src = `${F}${k}.webp`; });
+    Object.keys(FEAR_NAMES).forEach((k) => { const i = new Image(); i.src = `${F}${k}-search.webp`; });
 
     /* ── Fit the picture layers to the cropped picture ─────────── */
     const geo = { left: 0, top: 0, w: 1, h: 1 };
@@ -303,7 +305,7 @@
       const r = clamp(Math.min(W, H) * 0.17, 72, 150);
       stage.style.setProperty('--r', r + 'px');
       scope.r = r;
-      fearSize = clamp(geo.w * 0.075, 64, 130);
+      fearSize = clamp(geo.w * 0.12, 96, 210);
       placeSay();
     }
     // a spot in picture % → px within the picture layers
@@ -410,8 +412,11 @@
           const spot = pickOne(free);
           const el = document.createElement('div');
           el.className = 'ff-fear';
+          // lean towards the sleepyhead: mirror the ones creeping in from the right
+          if (spot.x - SLEEPYHEAD.x > 2) el.classList.add('is-flipped');
           el.style.setProperty('--f', fearSize + 'px');
-          el.innerHTML = `<img src="${F}${spot.fear}.webp" alt="${FEAR_NAMES[spot.fear]}" draggable="false">`;
+          el.style.setProperty('--bob', (1.6 * lv.creep / LEVELS[0].creep).toFixed(2) + 's');   // quicker fears wiggle quicker
+          el.innerHTML = `<img src="${F}${spot.fear}-search.webp" alt="${FEAR_NAMES[spot.fear]}" draggable="false">`;
           scene.appendChild(el);
           const eyes = document.createElement('span');
           eyes.className = 'ff-eyes';

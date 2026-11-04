@@ -1,0 +1,1284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dream Maker — The Stuffy Boos</title>
+  <meta name="description" content="Pick where to dream, choose your Stuffy Boo, put up to three things on the bed and press Dream! A sunny beach, a jungle, Candy Land or outer space are waiting.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+  /* ── Stage ─────────────────────────────────────────────────── */
+  .dm {
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 9.2rem var(--gutter) 2rem; gap: clamp(0.4rem, 1.4vh, 0.9rem);
+    -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  /* a sprinkle of stars and a soft moon glow behind the bed */
+  .dm::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(ellipse 50% 40% at 50% 42%, rgba(160, 120, 255, 0.22), transparent 70%),
+      radial-gradient(1.5px 1.5px at 12% 22%, #fff8, transparent), radial-gradient(2px 2px at 28% 64%, #fff6, transparent),
+      radial-gradient(1.5px 1.5px at 44% 14%, #fff9, transparent), radial-gradient(2px 2px at 63% 30%, #fff7, transparent),
+      radial-gradient(1.5px 1.5px at 79% 18%, #fff8, transparent), radial-gradient(2px 2px at 90% 58%, #fff6, transparent),
+      radial-gradient(1.5px 1.5px at 7% 80%, #fff7, transparent), radial-gradient(2px 2px at 72% 86%, #fff5, transparent),
+      radial-gradient(1.5px 1.5px at 35% 40%, #fff6, transparent), radial-gradient(1.5px 1.5px at 95% 34%, #fff8, transparent);
+  }
+  .dm .game-hud { z-index: 15; }
+
+  .dm-intro { text-align: center; max-width: 38rem; }
+  .dm-intro h1 {
+    margin: 0; font-size: clamp(1.9rem, 5vw, 2.8rem); line-height: 1.05;
+    background: linear-gradient(180deg, #fff2c4, var(--gold) 55%, var(--gold-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 2px 12px rgba(255, 190, 90, 0.3));
+  }
+  .dm-hint { margin: 0.3rem 0 0; font-weight: 700; font-size: clamp(1rem, 2.4vw, 1.15rem); color: var(--lav); min-height: 1.5em; }
+  .dm-hint b { color: var(--gold); }
+  .dm-hint.is-warn { color: #ffb3c9; }
+
+  /* ── The bed ───────────────────────────────────────────────── */
+  .dm-bed {
+    position: relative; flex: none; aspect-ratio: 1417 / 1130;
+    width: clamp(240px, min(100%, (100svh - 30.5rem) * 1.25), 640px);
+  }
+  .dm-bed::before {           /* soft glow on the floor under the bed */
+    content: ""; position: absolute; left: 4%; right: 4%; bottom: -6%; height: 22%; z-index: -1;
+    background: radial-gradient(ellipse at 50% 50%, rgba(255, 200, 120, 0.28), transparent 70%);
+  }
+  .dm-bed-img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45)); pointer-events: none; }
+  .dm-bed::after {            /* "drop it here" glow, shown while dragging */
+    content: ""; position: absolute; inset: -4%; border-radius: 40px; pointer-events: none;
+    border: 3px dashed rgba(255, 214, 120, 0.7);
+    box-shadow: 0 0 30px rgba(255, 200, 100, 0.25), inset 0 0 30px rgba(255, 200, 100, 0.15);
+    opacity: 0; scale: 0.96; transition: opacity 0.2s, scale 0.2s, border-color 0.2s;
+  }
+  .dm.is-dragging .dm-bed::after { opacity: 1; scale: 1; animation: dm-pulse 1.2s ease-in-out infinite; }
+  .dm-bed.is-over::after { border-style: solid; border-color: #ffd36e; box-shadow: 0 0 46px rgba(255, 210, 110, 0.6), inset 0 0 40px rgba(255, 210, 110, 0.3); }
+  .dm-bed.is-shake { animation: dm-shake 0.45s; }
+  .dm-bed.is-away { animation: dm-away 0.75s cubic-bezier(0.5, 0, 0.7, 0.4) forwards; }
+  @keyframes dm-pulse { 50% { scale: 1.02; } }
+  @keyframes dm-shake { 20%, 60% { translate: -8px 0; } 40%, 80% { translate: 8px 0; } }
+  @keyframes dm-away { 30% { scale: 1.04; } to { scale: 0.35; translate: 0 -12vh; opacity: 0; filter: blur(8px); } }
+
+  /* your chosen place: a little badge by the headboard */
+  .dm-badge {
+    position: absolute; z-index: 6; top: 3%; right: 2%;
+    display: flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.85rem 0.3rem 0.3rem; border-radius: 999px;
+    background: rgba(27, 18, 64, 0.8); border: 1px solid rgba(255, 214, 120, 0.5);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 18px rgba(255, 200, 100, 0.2);
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(0.85rem, 2vw, 1.05rem); color: var(--cream); white-space: nowrap;
+    animation: dm-pop-in 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  .dm-badge img { width: 1.9em; height: 1.9em; border-radius: 50%; object-fit: cover; border: 2px solid #ffd36e; }
+  /* your chosen Boo, sitting at the foot of the bed */
+  .dm-myboo {
+    position: absolute; z-index: 6; right: -5%; bottom: -3%; width: 23%;
+    display: flex; flex-direction: column; align-items: center;
+    animation: dm-pop-in 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  .dm-myboo img { display: block; width: 100%; height: auto; max-height: 9.5rem; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.45)); }
+  .dm-myboo span {
+    margin-top: -0.3rem; padding: 0.12rem 0.6rem; border-radius: 999px; white-space: nowrap;
+    background: #ffd36e; color: #3a2400; font-family: var(--font-display); font-weight: 600; font-size: clamp(0.7rem, 1.6vw, 0.85rem);
+  }
+  @keyframes dm-pop-in { from { scale: 0.2; opacity: 0; } }
+
+  /* things placed on the bed: anchored by their bottom-middle, standing on the quilt */
+  .dm-placed {
+    position: absolute; left: var(--x); top: var(--y); width: calc(var(--w, 1) * 30%);
+    translate: -50% -88%; rotate: var(--r); z-index: var(--z);
+    padding: 0; border: 0; background: none; cursor: pointer;
+    filter: drop-shadow(0 8px 10px rgba(30, 10, 60, 0.45));
+    animation: dm-land 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+  .dm-placed img { display: block; width: 100%; pointer-events: none; }
+  .dm-placed:hover, .dm-placed:focus-visible { scale: 1.06; }
+  .dm-placed:focus-visible { outline: 3px solid #ffd36e; outline-offset: 4px; border-radius: 16px; }
+  .dm-placed.is-leaving { animation: dm-leave 0.3s ease-in forwards; }
+  @keyframes dm-land { from { scale: 0.3; opacity: 0; translate: -50% -170%; } 55% { opacity: 1; scale: 1.12; translate: -50% -80%; } 75% { scale: 0.95; } }
+  @keyframes dm-leave { to { scale: 0.2; opacity: 0; translate: -50% -140%; } }
+
+  /* Zzz drifting up from the bed as the sleepyhead nods off */
+  .dm-zzz {
+    position: absolute; top: 20%; pointer-events: none;
+    font-family: var(--font-display); font-weight: 700; color: #fff4dc; font-size: clamp(1.4rem, 4vw, 2.2rem);
+    text-shadow: 0 0 14px rgba(200, 170, 255, 0.9);
+    animation: dm-zzz 1.3s ease-out var(--d) forwards; opacity: 0;
+  }
+  @keyframes dm-zzz { 0% { opacity: 0; translate: 0 0; scale: 0.6; } 30% { opacity: 1; } 100% { opacity: 0; translate: 50px -110px; scale: 1.3; } }
+
+  /* ── The pickers under the bed (one per stage) ─────────────── */
+  .dm-panel { width: min(100%, 940px); display: flex; flex-direction: column; align-items: center; gap: clamp(0.6rem, 1.6vh, 1rem); margin-top: clamp(0.4rem, 1.6vh, 1rem); }
+  .dm-panel[hidden] { display: none; }
+  .dm-grid { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: clamp(0.5rem, 1.6vw, 0.9rem); }
+  .dm-grid--places { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 760px; }
+  .dm-grid--boos, .dm-grid--items { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: min(760px, (100svh - 22rem) * 1.25); }
+
+  .dm-card {
+    position: relative; width: 100%; aspect-ratio: 1 / 1.02; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
+    padding: 0.5rem 0.4rem 0.45rem; border-radius: 22px; cursor: pointer;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04));
+    border: 2px solid rgba(255, 214, 120, 0.3); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+    color: var(--cream); font-family: var(--font-display); font-weight: 600; font-size: clamp(0.8rem, 1.6vw, 1rem); line-height: 1.1;
+    transition: transform 0.15s, border-color 0.2s, opacity 0.25s, filter 0.25s, box-shadow 0.2s, scale 0.3s;
+    animation: dm-card-in 0.55s cubic-bezier(0.3, 1.35, 0.5, 1) calc(var(--i) * 70ms) both;
+  }
+  .dm-card img { width: 80%; height: 68%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.4)); }
+  .dm-card:hover { transform: translateY(-4px) rotate(-2deg); border-color: rgba(255, 214, 120, 0.7); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35), 0 0 22px rgba(255, 200, 100, 0.2); }
+  .dm-card:focus-visible { outline: 3px solid #ffd36e; outline-offset: 3px; }
+  @keyframes dm-card-in { from { opacity: 0; translate: 0 70px; scale: 0.85; } }
+  .dm-panel.is-leaving .dm-card { animation: dm-card-out 0.42s ease-in calc(var(--i) * 45ms) forwards; }
+  @keyframes dm-card-out { to { opacity: 0; translate: 0 90px; scale: 0.85; } }
+
+  /* places: the dream picture fills the card, name along the bottom */
+  .dm-card--place { aspect-ratio: 4 / 3; padding: 0; justify-content: flex-end; }
+  .dm-card--place img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none; transition: scale 0.4s; }
+  .dm-card--place:hover img { scale: 1.08; }
+  .dm-card--place span {
+    position: relative; width: 100%; padding: 1.4rem 0.5rem 0.55rem;
+    background: linear-gradient(transparent, rgba(20, 10, 50, 0.85));
+    font-size: clamp(0.95rem, 2vw, 1.2rem); text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  }
+  .dm-card--boo img { height: 72%; }
+
+  /* the one you picked glows; the rest step back */
+  .dm-grid.has-pick .dm-card:not(.is-picked) { opacity: 0.4; filter: saturate(0.5); }
+  .dm-card.is-picked {
+    scale: 1.08; z-index: 2; border-color: #ffd36e;
+    box-shadow: 0 0 0 3px rgba(255, 211, 110, 0.6), 0 0 34px rgba(255, 210, 110, 0.75), 0 14px 30px rgba(0, 0, 0, 0.4);
+  }
+  .dm-card.is-picked::after {
+    content: "✓"; position: absolute; top: 6px; right: 8px; z-index: 2; width: 1.7rem; height: 1.7rem; border-radius: 50%;
+    display: grid; place-items: center; font-size: 1rem; background: #ffd36e; color: #3a2400;
+    animation: dm-pop-in 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+
+  /* items: drag them onto the bed (a tap works too) */
+  .dm-card--item { cursor: grab; touch-action: none; }
+  .dm-card--item.is-held { opacity: 0.35; transform: scale(0.94); }
+  .dm-card--item.is-used { opacity: 0.5; filter: saturate(0.5); }
+  .dm-card--item.is-used::after {
+    content: "✓"; position: absolute; top: 6px; right: 8px; width: 1.6rem; height: 1.6rem; border-radius: 50%;
+    display: grid; place-items: center; font-size: 1rem; background: #ffd36e; color: #3a2400;
+  }
+  .dm-grid.is-full .dm-card--item:not(.is-used) { opacity: 0.6; }
+
+  /* Dream! — greyed out until something is on the bed */
+  .dm-go { font-size: clamp(1.3rem, 3.4vw, 1.6rem); padding: 0.8rem 2.6rem; transition: filter 0.3s, opacity 0.3s, transform 0.15s, box-shadow 0.15s; }
+  .dm-go:disabled { filter: grayscale(1) brightness(0.75); opacity: 0.55; cursor: not-allowed; box-shadow: none; transform: none; }
+  .dm-go.is-ready { animation: dm-glow 1.6s ease-in-out infinite; }
+  @keyframes dm-glow { 0%, 100% { scale: 1; } 50% { scale: 1.06; box-shadow: 0 7px 0 #c9782a, 0 0 36px rgba(255, 210, 110, 0.8); } }
+
+  /* the copy that follows your finger while you drag */
+  .dm-ghost { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; width: var(--gw); filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.45)); }
+  .dm-ghost img { display: block; width: 100%; animation: dm-wiggle 0.5s ease-in-out infinite alternate; }
+  .dm-ghost.is-back { transition: transform 0.3s ease-in, opacity 0.3s; opacity: 0; }
+  @keyframes dm-wiggle { from { rotate: -6deg; } to { rotate: 6deg; } }
+
+  /* phones: two rows of cards, and the top bar wraps onto two rows so start lower */
+  @media (max-width: 640px) {
+    .dm-grid--places { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 420px; }
+    .dm-grid--boos, .dm-grid--items { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 420px; }
+    .dm-bed { width: clamp(230px, min(100%, (100svh - 35.5rem) * 1.25), 520px); }
+  }
+  @media (max-width: 480px) { .dm { padding-top: 8.4rem; } .dm .hud-pill { padding: 0.35rem 0.7rem; } }
+  @media (max-width: 340px) { .dm { padding-top: 10.6rem; } }   /* very narrow: the top bar wraps onto two rows */
+
+  /* ── The dream ─────────────────────────────────────────────── */
+  html.dm-lock, html.dm-lock body { overflow: hidden; }
+  .dm-dream {
+    position: fixed; inset: 0; z-index: 100; overflow: hidden; background: #120b30;
+    clip-path: circle(0px at var(--cx, 50%) var(--cy, 45%));
+    transition: clip-path 1.2s cubic-bezier(0.6, 0, 0.3, 1), opacity 0.5s;
+  }
+  .dm-dream[hidden] { display: none; }
+  .dm-dream.is-open { clip-path: circle(150vmax at var(--cx, 50%) var(--cy, 45%)); }
+  .dm-dream.is-closing { opacity: 0; }
+  .dm-dream-bg {
+    position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover;
+    filter: blur(10px) saturate(1.2); scale: 1.15; transition: filter 1.6s ease-out, scale 2.4s ease-out;
+  }
+  .dm-dream.is-open .dm-dream-bg { filter: none; scale: 1; animation: dm-drift 24s ease-in-out 2.4s infinite alternate; }
+  @keyframes dm-drift { to { scale: 1.06; translate: -1% -0.6%; } }
+  .dm-dream::after {          /* a dreamy soft edge round the scene */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(40, 20, 90, 0.5));
+  }
+
+  .dm-dream-title {
+    position: absolute; z-index: 5; top: clamp(0.8rem, 3vh, 1.5rem); left: clamp(0.8rem, 3vw, 1.6rem); margin: 0;
+    padding: 0.45rem 1.3rem; border-radius: 999px; white-space: nowrap;
+    font-size: clamp(1.1rem, 2.6vw, 1.6rem); line-height: 1.2;
+    background: rgba(27, 18, 64, 0.72); border: 1px solid rgba(255, 214, 120, 0.45);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    color: #ffd36e; -webkit-text-fill-color: #ffd36e; filter: none;
+    opacity: 0; transition: opacity 0.6s 1s;
+  }
+  .dm-dream.is-open .dm-dream-title { opacity: 1; }
+  .dm-again {
+    position: absolute; z-index: 6; top: clamp(0.8rem, 3vh, 1.5rem); right: clamp(0.8rem, 3vw, 1.6rem);
+    font-size: clamp(1.05rem, 2.6vw, 1.35rem); padding: 0.7rem 1.5rem;
+    opacity: 0; transition: opacity 0.5s 2.2s, transform 0.15s, box-shadow 0.15s;
+  }
+  .dm-dream.is-open .dm-again { opacity: 1; }
+  .dm-again:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+
+  /* ── The dream's little story: the things from the bed, playing together ──
+     Each "actor" is positioned by the script (px). Ground actors stand on their --y line. */
+  .dm-actor { position: absolute; left: var(--x); top: var(--y); width: var(--wpx); pointer-events: none; opacity: 0; }
+  .dm-actor > img, .dm-actor .dm-pic { position: relative; z-index: 1; display: block; width: 100%; height: auto; }
+  .dm-actor--ground { z-index: 2; translate: -50% -100%; }
+  .dm-actor--front { z-index: 5; }
+  .dm-dream.is-open .dm-actor--ground { animation: dm-rise-in 1.1s cubic-bezier(0.25, 1.25, 0.5, 1) var(--d) forwards; }
+  @keyframes dm-rise-in { from { opacity: 0; transform: translateY(45vh); } 35% { opacity: 1; } to { opacity: 1; transform: none; } }
+  .dm-floats.is-instant .dm-actor { animation-duration: 0.01s !important; animation-delay: 0s !important; }
+
+  /* a soft shadow on the ground under things */
+  .dm-shadow {
+    position: absolute; left: 8%; right: 8%; bottom: -5%; height: 14%;
+    background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.15) 45%, transparent 70%);
+  }
+  /* things with no partner: a gentle bob, the shadow breathing with it */
+  .dm-bob > img { animation: dm-bob-low var(--t) ease-in-out var(--d2) infinite alternate; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.3)); }
+  .dm-bob .dm-shadow { animation: dm-shadow var(--t) ease-in-out var(--d2) infinite alternate; }
+  @keyframes dm-bob-low { from { transform: translateY(0) rotate(-1.5deg); } to { transform: translateY(-9px) rotate(1.5deg); } }
+  @keyframes dm-shadow { from { scale: 1; opacity: 1; } to { scale: 0.86; opacity: 0.7; } }
+
+  /* the water slide, and whoever is riding it */
+  .dm-slide > img { filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.3)); }
+  .dm-rider { position: absolute; left: 0; top: 0; z-index: 2; width: var(--rw); opacity: 0; transform-origin: 50% 90%; will-change: transform; }
+  .dm-rider img { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.3)); }
+  .dm-drop {
+    position: absolute; z-index: 3; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #a9e6ff 55%, #45b4ff);
+    animation: dm-splash 0.85s ease-out forwards;
+  }
+  @keyframes dm-splash {
+    0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+    45% { transform: translate(calc(var(--dx) * 0.6), var(--dy)) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), calc(var(--dy) * -0.2)) scale(0.5); opacity: 0; }
+  }
+  .dm-ring {
+    position: absolute; z-index: 3; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 3 / 1; translate: -50% -50%;
+    border: 3px solid rgba(255, 255, 255, 0.85); border-radius: 50%; animation: dm-ring 0.7s ease-out forwards;
+  }
+  @keyframes dm-ring { from { scale: 0.2; opacity: 1; } to { scale: 1.4; opacity: 0; } }
+
+  /* dinosaur + beach ball: boop, boop, boop on the nose */
+  .dm-dino { transform-origin: 32% 100%; animation: dm-nod 1.4s ease-in-out var(--d2) infinite; }
+  @keyframes dm-nod { 0%, 100% { rotate: 3deg; } 14% { rotate: -1deg; } 40%, 86% { rotate: 0deg; } }
+  .dm-nose-ball {
+    position: absolute; z-index: 2; left: var(--bl); top: var(--bt); width: var(--bw);
+    transform-origin: 50% 100%; animation: dm-boop 1.4s var(--d2) infinite;
+  }
+  .dm-nose-ball img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.25)); animation: dm-spin 1.4s linear var(--d2) infinite; }
+  @keyframes dm-boop {
+    0%   { transform: translateY(0) scale(1.14, 0.84); animation-timing-function: ease-out; }
+    7%   { transform: translateY(calc(var(--jump) * -0.14)) scale(1); animation-timing-function: ease-out; }
+    50%  { transform: translateY(calc(var(--jump) * -1)) scale(1); animation-timing-function: ease-in; }
+    100% { transform: translateY(0) scale(1.14, 0.84); }
+  }
+  @keyframes dm-spin { to { rotate: 360deg; } }
+
+  /* a beach ball bouncing along the ground on its own */
+  .dm-roll-ball, .dm-roll-shadow { position: absolute; left: 0; top: 0; will-change: transform; }
+  .dm-roll-ball { z-index: 2; transform-origin: 50% 100%; }
+  .dm-roll-ball img { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.25)); }
+  .dm-roll-shadow { z-index: 1; background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.38), transparent 70%); }
+
+  /* the rocket: rumbles on the ground, blasts off with a flame and a smoke trail, loops, comes back */
+  .dm-rocket-body { position: relative; will-change: transform; }
+  .dm-flame {
+    position: absolute; z-index: 0; left: 50%; top: 84%; width: 48%; height: 36%; translate: -50% 0;
+    transform-origin: 50% 0; scale: 1 var(--flen, 1); opacity: var(--flame, 0);
+    background: radial-gradient(ellipse 50% 62% at 50% 18%, #fffbe0, #ffd24a 32%, #ff7a2f 58%, rgba(255, 60, 40, 0) 74%);
+    filter: blur(1.5px); animation: dm-flicker 0.08s ease-in-out infinite alternate;
+  }
+  @keyframes dm-flicker { to { transform: scale(0.88, 1.2); } }
+  .dm-trail { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .dm-puff {
+    position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(236, 228, 255, 0.6) 45%, transparent 70%);
+    animation: dm-puff var(--t, 1.3s) ease-out forwards;
+  }
+  @keyframes dm-puff { from { scale: 0.35; opacity: 0.9; } to { scale: 2.3; opacity: 0; transform: translate(var(--dx), var(--dy)); } }
+
+  /* pizza in Candy Land: slices raining down, slowly */
+  .dm-rain { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .dm-slice { position: absolute; top: 0; left: var(--x); width: var(--s); opacity: 0; }
+  .dm-dream.is-open .dm-slice { animation: dm-fall var(--t) linear var(--d) infinite; }
+  .dm-slice img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 12px rgba(80, 20, 60, 0.3)); animation: dm-sway 2.6s ease-in-out infinite alternate; }
+  @keyframes dm-fall {
+    0% { opacity: 0; transform: translateY(-30vh) rotate(var(--r0)); }
+    6%, 92% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(112vh) rotate(var(--r1)); }
+  }
+  @keyframes dm-sway { from { translate: -18px 0; } to { translate: 18px 0; } }
+
+  /* the rainbow: sweeps across the top of the sky, sparkling along its arc */
+  .dm-actor--rainbow { z-index: 1; translate: -50% 0; }
+  .dm-dream.is-open .dm-actor--rainbow { animation: dm-show 0.01s linear var(--d) forwards; }
+  .dm-actor--rainbow > img { filter: drop-shadow(0 0 26px rgba(255, 255, 255, 0.4)); }
+  .dm-dream.is-open .dm-actor--rainbow > img {
+    animation: dm-wipe 1.9s cubic-bezier(0.45, 0, 0.3, 1) var(--d) both, dm-float-soft 7s ease-in-out calc(var(--d) + 2s) infinite alternate;
+  }
+  .dm-actor--rainbow .spark { z-index: 2; }
+  @keyframes dm-show { to { opacity: 1; } }
+  @keyframes dm-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes dm-float-soft { to { transform: translateY(-10px); } }
+
+  /* a burst of sparkles as each thing arrives */
+  .dm-top { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+  .dm-burst { position: absolute; left: var(--x); top: var(--y); width: 0; height: 0; }
+  .dm-burst i {
+    position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; background: var(--c);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9));
+    animation: dm-burst 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  }
+  @keyframes dm-burst { from { scale: 0.3; opacity: 1; } to { translate: var(--dx) var(--dy); scale: 1; rotate: 140deg; opacity: 0; } }
+
+  /* drifting sparkles, leaves, sweets… */
+  .dm-fx { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .dm-fx span { position: absolute; left: var(--x); bottom: -10%; font-size: var(--fs); opacity: 0; animation: dm-rise var(--t) linear var(--d) infinite; }
+  @keyframes dm-rise {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0); }
+    10%, 80% { opacity: 0.9; }
+    100% { opacity: 0; transform: translate(var(--dx), -115vh) rotate(var(--rot)); }
+  }
+
+  /* your Boo, popping up in the corner with something to say */
+  .dm-char {
+    position: absolute; z-index: 4; right: clamp(0.5rem, 3vw, 2.5rem); bottom: 0;
+    width: clamp(130px, 20vw, 280px);
+    translate: 0 115%; transition: translate 0.8s cubic-bezier(0.3, 1.4, 0.5, 1) 1.4s;
+  }
+  .dm-dream.is-open .dm-char { translate: 0 0; }
+  .dm-char img { display: block; width: 100%; height: auto; max-height: 46vh; object-fit: contain; object-position: bottom; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4)); }
+  .dm-say {
+    position: absolute; right: 55%; bottom: 88%; margin: 0;
+    width: max-content; max-width: min(320px, 60vw); padding: 0.7rem 1.1rem; border-radius: 22px;
+    background: #fff; color: var(--ink) !important;
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(1rem, 2.3vw, 1.3rem); line-height: 1.25;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform-origin: 90% 100%; scale: 0.4; opacity: 0; transition: opacity 0.2s, scale 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .dm-say::after { content: ""; position: absolute; right: 14%; bottom: -9px; width: 18px; height: 18px; background: inherit; rotate: 45deg; }
+  .dm-say.on { opacity: 1; scale: 1; }
+  .dm-say small { display: block; margin-bottom: 0.15rem; font-size: 0.75em; color: var(--purple-deep); }
+  /* tall screens: the ground things fill the bottom, so the bubble floats higher, above them */
+  @media (orientation: portrait) {
+    .dm-say { right: 4%; bottom: calc(100% + var(--say-lift, 11vh)); }
+    .dm-say::after { right: 18%; }
+  }
+  @media (max-width: 640px) {
+    .dm-dream-title { display: none; }   /* the Boo says where we are; keeps the top clear for the button */
+    .dm-char { width: clamp(120px, 34vw, 200px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dm-card, .dm-panel.is-leaving .dm-card, .dm-badge, .dm-myboo, .dm-placed, .dm-bed.is-away { animation: none; }
+    .dm-bed.is-away { opacity: 0; }
+    .dm-dream { transition: opacity 0.4s; clip-path: none; opacity: 0; }
+    .dm-dream.is-open { clip-path: none; opacity: 1; }
+    .dm-dream-bg, .dm-dream.is-open .dm-dream-bg { filter: none; scale: 1; animation: none; transition: none; }
+    .dm-ghost img, .dm-go.is-ready, .dm.is-dragging .dm-bed::after { animation: none; }
+    .dm-dream.is-open .dm-actor, .dm-dream.is-open .dm-actor > img, .dm-bob .dm-shadow, .dm-dino, .dm-nose-ball,
+    .dm-nose-ball img, .dm-flame, .dm-slice img, .dm-dream.is-open .dm-slice { animation: none; opacity: 1; }
+    .dm-dream.is-open .dm-slice { top: var(--y); transform: rotate(var(--r0)); }
+    .dm-fx { display: none; }
+  }
+  </style>
+</head>
+<body class="home night">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
+        <span class="logo-mark" aria-hidden="true">🐾</span>
+        Stuffy Boos
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="index.html">Home</a>
+        <a href="characters.html">Characters</a>
+        <a href="games.html" aria-current="page">Games</a>
+        <a href="about.html">About</a>
+        <a href="stay-connected.html" class="nav-cta">Stay Connected</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="dm" id="dm" aria-label="Dream Maker game">
+      <div class="game-hud">
+        <a class="hud-pill hud-back" href="games.html">← <span class="hide-sm">Back to </span>Games</a>
+        <div class="hud-stats">
+          <span class="hud-pill hud-level" id="dm-step">Step 1 of 3</span>
+          <button class="hud-pill hud-sound" id="dm-sound" type="button" aria-pressed="false" aria-label="Sound on. Tap to mute">🔊</button>
+        </div>
+      </div>
+
+      <div class="dm-intro">
+        <h1>Dream Maker</h1>
+        <p class="dm-hint" id="dm-hint" aria-live="polite"></p>
+      </div>
+
+      <div class="dm-bed" id="dm-bed">
+        <img class="dm-bed-img" src="images/dream-maker/bed.webp" width="1417" height="1130" alt="A cosy wooden bed with a flowery quilt">
+      </div>
+
+      <!-- Stage 1: where shall we dream? -->
+      <div class="dm-panel" id="dm-panel-place">
+        <ul class="dm-grid dm-grid--places" id="dm-places" aria-label="Places to dream about"></ul>
+      </div>
+      <!-- Stage 2: who's coming? -->
+      <div class="dm-panel" id="dm-panel-boo" hidden>
+        <ul class="dm-grid dm-grid--boos" id="dm-boos" aria-label="Stuffy Boos"></ul>
+      </div>
+      <!-- Stage 3: build the dream -->
+      <div class="dm-panel" id="dm-panel-items" hidden>
+        <ul class="dm-grid dm-grid--items" id="dm-items" aria-label="Things to take to bed"></ul>
+        <button class="btn btn-gold dm-go" id="dm-go" type="button" disabled>Dream! ✨</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Stage 4: the dream fills the whole screen -->
+  <div class="dm-dream" id="dm-dream" role="dialog" aria-modal="true" aria-labelledby="dm-dream-title" hidden>
+    <img class="dm-dream-bg" id="dm-dream-bg" alt="">
+    <div class="dm-fx" id="dm-fx" aria-hidden="true"></div>
+    <div class="dm-floats" id="dm-floats" aria-hidden="true"></div>
+    <div class="dm-trail" id="dm-trail" aria-hidden="true"></div>
+    <div class="dm-top" id="dm-top" aria-hidden="true"></div>
+    <h2 class="dm-dream-title" id="dm-dream-title">Sweet dreams</h2>
+    <div class="dm-char">
+      <p class="dm-say" id="dm-say" aria-live="polite"></p>
+      <img id="dm-char-img" alt="">
+    </div>
+    <button class="btn btn-gold dm-again" id="dm-again" type="button">Dream Again! 🌙</button>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <a class="logo" href="index.html">Stuffy Boos</a>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="index.html">Home</a><a href="characters.html">Characters</a><a href="games.html">Games</a><a href="about.html">About</a><a href="stay-connected.html">Stay Connected</a>
+      </nav>
+      <p class="small" style="color:#cbbdf0">© <span data-year>2026</span> The Stuffy Boos. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+  /* Dream Maker, in four stages:
+       1. pick a place to dream about   2. pick your Stuffy Boo
+       3. drag up to three things onto the bed   4. Dream! — the scene takes over the screen
+     Plain JS, no libraries; sounds are synthesised with Web Audio. Everything lives inside
+     this function so its names can't clash with the site's shared js/main.js. */
+  (() => {
+    const $ = (id) => document.getElementById(id);
+    const stage = $('dm'), bed = $('dm-bed'), goBtn = $('dm-go'), hint = $('dm-hint'), stepEl = $('dm-step');
+    const dream = $('dm-dream'), dreamBg = $('dm-dream-bg'), floats = $('dm-floats'), fx = $('dm-fx'), sayEl = $('dm-say');
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const DIR = 'images/dream-maker/';
+    const MAX = 3;
+
+    /* ── The places ───────────────────────────────────────────── */
+    const PLACES = [
+      { id: 'beach',      label: 'Beach',      title: '☀️ A Beach Dream',      fx: ['🫧', '✨', '🐚', '🫧'],
+        alt: 'A sunny tropical beach with palm trees, golden sand and sparkling waves at sunset' },
+      { id: 'space',      label: 'Space',      title: '🚀 A Space Dream',      fx: ['✨', '⭐', '💫', '✨'],
+        alt: 'Outer space, full of swirling galaxies and colourful planets' },
+      { id: 'jungle',     label: 'Jungle',     title: '🌿 A Jungle Dream',     fx: ['🍃', '🦋', '🌸', '🍃'],
+        alt: 'A lush jungle with waterfalls, giant flowers and misty mountains' },
+      { id: 'candy-land', label: 'Candy Land', title: '🍭 A Candy Land Dream', fx: ['🍬', '🍭', '✨', '🍬'],
+        alt: 'Candy Land, with gingerbread houses, giant lollipops and a candy castle' },
+    ];
+
+    /* ── The Boos, and what each one says in each dream ─────────── */
+    const BOOS = [
+      { id: 'boo-boo', name: 'Boo Boo', lines: {        // silly and goofy
+        'beach':      'Hee hee! I buried my own feet in the sand and now I can’t find them! 🏖️',
+        'space':      'Look, I’m floating upside down! Or is everybody else? 🙃',
+        'jungle':     'Ooh ooh, ah ah! I’m the king of the banana-nana-nanas! 🍌',
+        'candy-land': 'I licked a lollipop tree and now my tongue is RAINBOW! 👅' } },
+      { id: 'snacky-boo', name: 'Snacky Boo', lines: {  // always thinking about food
+        'beach':      'Sandwiches at the beach? More like SAND-wiches! Crunchy! 🥪',
+        'space':      'Is the moon made of cheese? Only one way to find out… 🧀',
+        'jungle':     'So many bananas, and only one tummy. I’ll do my best! 🍌',
+        'candy-land': 'A chocolate river?! Pass me a spoon. A BIG spoon! 🍫' } },
+      { id: 'jammy-boo', name: 'Jammy Boo', lines: {    // music, music, music
+        'beach':      'The waves are keeping the beat! Splish, splash, cha-cha-cha! 🎶',
+        'space':      'Twinkle, twinkle, little star, I’ll play you a song on my space guitar! 🎸',
+        'jungle':     'The parrots know all the words! Everybody jam! 🥁',
+        'candy-land': 'Candy canes make the sweetest drumsticks! Ba-dum-tss! 🎵' } },
+      { id: 'nighty-boo', name: 'Nighty Boo', lines: {  // sleepy and cosy
+        'beach':      'Mmm… warm sand makes the comfiest pillow… zzz… 🌙',
+        'space':      'So many twinkly night lights up here… perfect for a snooze… ✨',
+        'jungle':     'Shh… even the monkeys are tucked into their hammocks… 💤',
+        'candy-land': 'A marshmallow bed? Goodnight, everyone… *yaaawn* 😴' } },
+      { id: 'blanky-boo', name: 'Blanky Boo', lines: {  // warm and snuggly
+        'beach':      'Let’s share my blanky on the sand. Snuggle in close! 🧡',
+        'space':      'Space is a bit chilly. Come here for a big warm cuddle! 🤗',
+        'jungle':     'Hold my paw, we’ll explore together, all snug and safe! 🧡',
+        'candy-land': 'Sweet dreams and even sweeter hugs! Come here, you! 🤗' } },
+      { id: 'dreamy-boo', name: 'Dreamy Boo', lines: {  // dreamy and poetic
+        'beach':      'The waves whisper stories of seashells and sunsets… 🐚',
+        'space':      'We are stardust, drifting softly through the velvet night… ✨',
+        'jungle':     'Every leaf is a page in an emerald storybook… 📖',
+        'candy-land': 'A sugar-spun kingdom, where every wish tastes sweet… 🍭' } },
+    ];
+
+    /* ── The things you can take to bed ──────────────────────────
+       w: how wide it shows compared with the others (the slide and rainbow are wide pictures)
+       ground: stands on the ground in the dream; otherwise it floats in the sky */
+    const ITEMS = [
+      { id: 'beach-ball',  label: 'Beach Ball',  w: 0.8,  ground: false },
+      { id: 'water-slide', label: 'Water Slide', w: 1.35, ground: true },
+      { id: 'dinosaur',    label: 'Dinosaur',    w: 1,    ground: true },
+      { id: 'rainbow',     label: 'Rainbow',     w: 1.4,  ground: false },
+      { id: 'pizza',       label: 'Pizza',       w: 0.75, ground: true },
+      { id: 'rocket',      label: 'Rocket',      w: 0.75, ground: false },
+    ];
+    // where things sit on the quilt (% of the bed picture; each thing stands on its spot)
+    const SLOTS = [
+      { x: 44, y: 52, r: -6, z: 1 },
+      { x: 66, y: 60, r: 7,  z: 2 },
+      { x: 31, y: 70, r: -3, z: 3 },
+    ];
+
+    /* ── Sound (synthesised) ──────────────────────────────────── */
+    let ctx = null, muted = false;
+    const soundBtn = $('dm-sound');
+    function initSound() {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!ctx) ctx = new AC();
+      if (ctx.state === 'suspended') ctx.resume();
+    }
+    function tone(freq, at, dur, vol, type = 'triangle', slideTo = 0) {
+      if (!ctx || muted) return;
+      const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + 0.05);
+    }
+    const SFX = {
+      choose: () => [659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.07, 0.3, 0.08)),
+      lift:   () => tone(520, 0, 0.12, 0.06, 'sine', 780),
+      place:  () => { tone(392, 0, 0.14, 0.12, 'triangle', 620); tone(1046.5, 0.07, 0.3, 0.05, 'sine'); },
+      remove: () => tone(620, 0, 0.2, 0.08, 'sine', 300),
+      full:   () => { tone(260, 0, 0.18, 0.1, 'triangle', 200); tone(220, 0.16, 0.22, 0.08, 'triangle', 170); },
+      sleep:  () => [659.25, 523.25, 392].forEach((f, i) => tone(f, i * 0.3, 0.6, 0.08, 'sine')),
+      dream:  () => [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.5, 1567.98, 2093]
+                      .forEach((f, i) => { tone(f, i * 0.075, 0.9, 0.06, 'sine'); tone(f * 2, i * 0.075 + 0.02, 0.5, 0.015, 'sine'); }),
+      talk:   () => { tone(880, 0, 0.12, 0.07); tone(1174.66, 0.1, 0.22, 0.07); },
+      again:  () => { tone(783.99, 0, 0.2, 0.08); tone(1046.5, 0.1, 0.3, 0.07); },
+      splash: () => { tone(1200, 0, 0.18, 0.04, 'sine', 300); tone(700, 0.04, 0.22, 0.04, 'sine', 200); tone(1600, 0.08, 0.12, 0.02, 'sine', 900); },
+      launch: () => { tone(110, 0, 1.4, 0.06, 'triangle', 520); tone(220, 0.1, 1.2, 0.025, 'sine', 900); },
+      shimmer: () => [1318.5, 1567.98, 1760, 2093, 2349.3, 2637].forEach((f, i) => tone(f, i * 0.16, 0.6, 0.03, 'sine')),
+    };
+    soundBtn.addEventListener('click', () => {
+      muted = !muted;
+      soundBtn.textContent = muted ? '🔇' : '🔊';
+      soundBtn.setAttribute('aria-pressed', String(muted));
+      soundBtn.setAttribute('aria-label', muted ? 'Sound off. Tap to unmute' : 'Sound on. Tap to mute');
+      if (!muted) initSound();
+    });
+
+    /* ── Game state ───────────────────────────────────────────── */
+    let stageNo = 1;          // 1 place · 2 boo · 3 items · 4 dreaming
+    let place = null, boo = null, placed = [], busy = false;
+    let timers = [];
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const panels = { 1: $('dm-panel-place'), 2: $('dm-panel-boo'), 3: $('dm-panel-items') };
+
+    function setHint(html, warn = false) { hint.innerHTML = html; hint.classList.toggle('is-warn', warn); }
+    function preload(src) { const i = new Image(); i.src = src; return i; }
+
+    function card(cls, i, inner, label) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `dm-card ${cls}`;
+      b.style.setProperty('--i', i);
+      b.setAttribute('aria-label', label);
+      b.innerHTML = inner;
+      li.appendChild(b);
+      return { li, b };
+    }
+
+    // build a stage's cards afresh (so their slide-in plays every time)
+    function buildPlaces() {
+      const ul = $('dm-places'); ul.innerHTML = ''; ul.classList.remove('has-pick');
+      PLACES.forEach((p, i) => {
+        const { li, b } = card('dm-card--place', i, `<img src="${DIR}${p.id}.webp" alt="" draggable="false"><span>${p.label}</span>`, `Dream about the ${p.label}`);
+        b.addEventListener('click', () => choose(b, ul, () => pickPlace(p)));
+        ul.appendChild(li);
+      });
+    }
+    function buildBoos() {
+      const ul = $('dm-boos'); ul.innerHTML = ''; ul.classList.remove('has-pick');
+      BOOS.forEach((c, i) => {
+        const { li, b } = card('dm-card--boo', i, `<img src="${DIR}boos/${c.id}.webp" alt="" draggable="false"><span>${c.name}</span>`, `Dream with ${c.name}`);
+        b.addEventListener('click', () => choose(b, ul, () => pickBoo(c)));
+        ul.appendChild(li);
+      });
+    }
+    const itemCards = new Map();
+    function buildItems() {
+      const ul = $('dm-items'); ul.innerHTML = ''; ul.classList.remove('is-full'); itemCards.clear();
+      ITEMS.forEach((it, i) => {
+        const { li, b } = card('dm-card--item', i, `<img src="${DIR}${it.id}.webp" alt="" draggable="false"><span>${it.label}</span>`, `${it.label}: put on the bed`);
+        b.setAttribute('aria-pressed', 'false');
+        itemCards.set(it.id, b);
+        wireDrag(b, it);
+        ul.appendChild(li);
+      });
+    }
+
+    function showStage(n) {
+      stageNo = n;
+      Object.entries(panels).forEach(([k, el]) => { el.hidden = Number(k) !== n; el.classList.remove('is-leaving'); });
+      stepEl.textContent = `Step ${Math.min(n, 3)} of 3`;
+      if (n === 1) { buildPlaces(); setHint('Where shall we dream tonight? <b>Pick a place!</b>'); }
+      if (n === 2) { buildBoos(); setHint(`A ${place.label.toLowerCase()} dream! Now, <b>which Boo is coming?</b>`); }
+      if (n === 3) { buildItems(); updateItems(); }
+      busy = false;
+    }
+
+    // a card was picked: glow it, then slide the whole row away and move on
+    function choose(b, ul, next) {
+      if (busy) return;
+      busy = true;
+      initSound();
+      SFX.choose();
+      b.classList.add('is-picked');
+      ul.classList.add('has-pick');
+      const panel = ul.closest('.dm-panel');
+      later(() => {
+        panel.classList.add('is-leaving');
+        later(() => next(), still ? 0 : 420 + ul.children.length * 45);
+      }, still ? 150 : 750);
+    }
+
+    function pickPlace(p) {
+      place = p;
+      preload(`${DIR}${p.id}.webp`);
+      const badge = document.createElement('span');
+      badge.className = 'dm-badge';
+      badge.innerHTML = `<img src="${DIR}${p.id}.webp" alt="">${p.label}`;
+      badge.setAttribute('aria-label', `Dreaming about: ${p.label}`);
+      bed.appendChild(badge);
+      showStage(2);
+    }
+    function pickBoo(c) {
+      boo = c;
+      const me = document.createElement('div');
+      me.className = 'dm-myboo';
+      me.innerHTML = `<img src="${DIR}boos/${c.id}.webp" alt="${c.name}"><span>Your Boo</span>`;
+      bed.appendChild(me);
+      showStage(3);
+    }
+
+    /* ── Stage 3: the bed ─────────────────────────────────────── */
+    function updateItems() {
+      const n = placed.length;
+      goBtn.disabled = n === 0;
+      goBtn.classList.toggle('is-ready', n > 0);
+      $('dm-items').classList.toggle('is-full', n >= MAX);
+      if (n === 0) setHint(`Drag up to 3 things onto the bed for ${boo.name}!`);
+      else if (n < MAX) setHint(`${n} on the bed! Add ${MAX - n} more, or press <b>Dream!</b> ✨`);
+      else setHint('The bed is full! Time to press <b>Dream!</b> ✨');
+    }
+
+    function placeItem(item) {
+      if (stageNo !== 3 || placed.some((p) => p.item === item)) return false;
+      if (placed.length >= MAX) {
+        bed.classList.remove('is-shake'); void bed.offsetWidth; bed.classList.add('is-shake');
+        setHint('The bed is full! Tap something on the bed to take it off.', true);
+        SFX.full();
+        return false;
+      }
+      const used = new Set(placed.map((p) => p.slot));
+      const slot = SLOTS.findIndex((_, i) => !used.has(i));
+      const s = SLOTS[slot];
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'dm-placed';
+      el.setAttribute('aria-label', `${item.label} is on the bed. Tap to take it off`);
+      el.style.cssText = `--x:${s.x}%;--y:${s.y}%;--r:${s.r}deg;--z:${s.z};--w:${item.w}`;
+      el.innerHTML = `<img src="${DIR}${item.id}.webp" alt="" draggable="false">`;
+      el.addEventListener('click', () => removeItem(item));
+      bed.appendChild(el);
+      placed.push({ item, el, slot });
+      const c = itemCards.get(item.id);
+      c.classList.add('is-used');
+      c.setAttribute('aria-pressed', 'true');
+      c.setAttribute('aria-label', `${item.label}: on the bed. Tap to take it off`);
+      SFX.place();
+      updateItems();
+      return true;
+    }
+
+    function removeItem(item, quiet = false) {
+      const i = placed.findIndex((p) => p.item === item);
+      if (i < 0) return;
+      const { el } = placed[i];
+      placed.splice(i, 1);
+      if (quiet || still) el.remove();
+      else { el.classList.add('is-leaving'); setTimeout(() => el.remove(), 300); }
+      const c = itemCards.get(item.id);
+      if (c) {
+        c.classList.remove('is-used');
+        c.setAttribute('aria-pressed', 'false');
+        c.setAttribute('aria-label', `${item.label}: put on the bed`);
+      }
+      if (!quiet) { SFX.remove(); updateItems(); }
+    }
+
+    /* dragging (mouse, finger or pen); a simple tap works too */
+    function overBed(x, y) {
+      const r = bed.getBoundingClientRect(), pad = r.width * 0.08;
+      return x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad;
+    }
+    function wireDrag(c, item) {
+      let drag = null, skipClick = false;
+      c.addEventListener('pointerdown', (e) => {
+        if (e.button > 0 || stageNo !== 3) return;
+        initSound();
+        if (c.classList.contains('is-used')) return;   // a tap on a used card takes it off the bed (see click)
+        drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, ghost: null };
+        c.setPointerCapture(e.pointerId);
+      });
+      c.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        if (!drag.ghost) {
+          if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 8) return;
+          const g = document.createElement('div');
+          g.className = 'dm-ghost';
+          g.style.setProperty('--gw', Math.max(90, c.offsetWidth * 1.15 * item.w) + 'px');
+          g.innerHTML = `<img src="${DIR}${item.id}.webp" alt="">`;
+          document.body.appendChild(g);
+          drag.ghost = g;
+          c.classList.add('is-held');
+          stage.classList.add('is-dragging');
+          SFX.lift();
+        }
+        drag.ghost.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -60%)`;
+        bed.classList.toggle('is-over', overBed(e.clientX, e.clientY));
+      });
+      const end = (e, cancelled) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const { ghost } = drag;
+        drag = null;
+        stage.classList.remove('is-dragging');
+        bed.classList.remove('is-over');
+        c.classList.remove('is-held');
+        if (!ghost) return;                      // no movement: the click handler treats it as a tap
+        skipClick = true;
+        const dropped = !cancelled && overBed(e.clientX, e.clientY) && placeItem(item);
+        if (dropped || still) { ghost.remove(); return; }
+        const r = c.getBoundingClientRect();     // missed the bed: float back to the card
+        ghost.classList.add('is-back');
+        ghost.style.transform = `translate(${r.left + r.width / 2}px, ${r.top + r.height / 2}px) translate(-50%, -60%) scale(0.6)`;
+        setTimeout(() => ghost.remove(), 320);
+      };
+      c.addEventListener('pointerup', (e) => end(e, false));
+      c.addEventListener('pointercancel', (e) => end(e, true));
+      c.addEventListener('click', () => {
+        if (skipClick) { skipClick = false; return; }
+        if (stageNo !== 3) return;
+        initSound();
+        if (c.classList.contains('is-used')) removeItem(item);
+        else placeItem(item);
+      });
+    }
+
+    /* ── Stage 4: Dream! ──────────────────────────────────────── */
+    // height ÷ width of each picture
+    const AR = { 'water-slide': 783 / 900, 'dinosaur': 849 / 800, 'beach-ball': 806 / 800, 'pizza': 1032 / 800, 'rocket': 1125 / 700, 'rainbow': 429 / 900 };
+    // measured on the pictures (% of their width and height):
+    const SLIDE_PATH = [[53, 35], [50, 45], [46, 56], [42, 66], [38, 75]];  // down the middle of the big blue lane
+    const SLIDE_POOL = [33, 80];                                            // where riders splash into the pool
+    const NOSE = [8, 13];                                                   // the top of the dinosaur's snout
+    const RAINBOW_CY = 389 / 429;                                           // the arc's centre (fraction of height)
+    const RAINBOW_R = [0.31, 0.43];                                         // middle and outer radius (fraction of width)
+    const ease = { inQuad: (t) => t * t, outCubic: (t) => 1 - (1 - t) ** 3, outBack: (t) => 1 + 2.4 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2 };
+    let dreamToken = 0, dreamIds = [], dreamPlace = null, sayFloor = Infinity;
+    // lift the speech bubble clear of the things standing on the ground (tall screens)
+    function placeSay() {
+      const box = $('dm-char-img').parentElement;
+      const charTop = window.innerHeight - box.offsetHeight;
+      if (sayFloor === Infinity || !box.offsetHeight) { box.style.removeProperty('--say-lift'); return; }
+      box.style.setProperty('--say-lift', `${Math.max(window.innerHeight * 0.06, charTop - sayFloor + 14)}px`);
+    }
+    $('dm-char-img').addEventListener('load', () => placeSay());
+
+    goBtn.addEventListener('click', () => {
+      if (stageNo !== 3 || !placed.length || busy) return;
+      busy = true;
+      initSound();
+      stageNo = 4;
+      goBtn.disabled = true;
+      goBtn.classList.remove('is-ready');
+      setHint('Shhh… sweet dreams… 💤');
+      const img = preload(`${DIR}${place.id}.webp`);
+      preload(`${DIR}boos/${boo.id}.webp`);
+      if (still) { openDream(); return; }
+      ['Z', 'z', 'z'].forEach((z, i) => {
+        const s = document.createElement('span');
+        s.className = 'dm-zzz'; s.textContent = z;
+        s.style.cssText = `--d:${i * 0.25}s;left:${36 + i * 6}%`;
+        bed.appendChild(s);
+      });
+      SFX.sleep();
+      // the bed and everything on it whooshes away, then the dream grows from where it was
+      later(() => { bed.classList.add('is-away'); panels[3].classList.add('is-leaving'); }, 900);
+      // wait for the picture (but never more than 4 seconds: the dream opens and it fades in when ready)
+      const ready = Promise.race([(img.decode ? img.decode() : Promise.resolve()).catch(() => {}), new Promise((r) => later(r, 4000))]);
+      const wait = new Promise((r) => later(r, 1550));
+      Promise.all([ready, wait]).then(() => { if (stageNo === 4) openDream(); });
+    });
+
+    function openDream() {
+      dreamBg.src = `${DIR}${place.id}.webp`;
+      dreamBg.alt = place.alt;
+      $('dm-dream-title').textContent = place.title;
+      const charImg = $('dm-char-img');
+      charImg.src = `${DIR}boos/${boo.id}.webp`;
+      charImg.alt = boo.name;
+      sayEl.textContent = '';
+      sayEl.classList.remove('on');
+
+      // the things from the bed, playing together (see buildScene)
+      dreamIds = placed.map((p) => p.item.id);
+      dreamPlace = place;
+      buildScene(false);
+
+      // drifting bits for the scene
+      fx.innerHTML = '';
+      for (let i = 0; i < (window.innerWidth < 600 ? 10 : 18); i++) {
+        const s = document.createElement('span');
+        s.textContent = place.fx[i % place.fx.length];
+        s.style.cssText = `--x:${rnd(2, 96).toFixed(1)}%;--fs:${rnd(1.1, 2.2).toFixed(2)}rem;--t:${rnd(9, 16).toFixed(1)}s;` +
+          `--d:-${rnd(0, 14).toFixed(1)}s;--dx:${rnd(-80, 80).toFixed(0)}px;--rot:${rnd(-200, 200).toFixed(0)}deg`;
+        fx.appendChild(s);
+      }
+
+      // grow the dream out of where the bed was
+      const r = bed.getBoundingClientRect();
+      dream.style.setProperty('--cx', `${r.left + r.width / 2}px`);
+      dream.style.setProperty('--cy', `${r.top + r.height / 2}px`);
+      document.documentElement.classList.add('dm-lock');
+      dream.classList.remove('is-closing');
+      dream.hidden = false;
+      void dream.offsetWidth;
+      dream.classList.add('is-open');
+      SFX.dream();
+      $('dm-again').focus({ preventScroll: true });
+      later(() => {
+        sayEl.innerHTML = `<small>${boo.name}</small>`;
+        sayEl.append(boo.lines[place.id]);
+        sayEl.classList.add('on');
+        SFX.talk();
+      }, still ? 300 : 2300);
+      busy = false;
+    }
+
+    /* ── The dream's little story ───────────────────────────────
+       Things that have a partner play together:
+         dinosaur + water slide → the dino slides down, again and again (the main event)
+                                  (with the beach ball too, they take turns on the slide)
+         water slide, no dino   → a beach ball rolls down it and splashes into the pool
+         dinosaur + beach ball  → the dino bounces the ball on its nose
+         beach ball on its own  → it bounces along the ground
+         rocket                 → rumbles, blasts off with a smoke trail, loops the loop, lands again
+         pizza in Candy Land    → slices rain gently from the sky
+         rainbow                → sweeps across the top of the sky, sparkling
+       Anything else bobs gently on the ground. Ground things line up left to right in the
+       space beside your Boo; everything arrives in turn, in the order it went on the bed. */
+    const trail = $('dm-trail'), topLayer = $('dm-top');
+
+    function el(tag, cls, vars = {}, html = '') {
+      const e = document.createElement(tag);
+      e.className = cls;
+      e.style.cssText = Object.entries(vars).map(([k, v]) => `--${k}:${v}`).join(';');
+      e.innerHTML = html;
+      return e;
+    }
+    const pic = (id) => `<img class="dm-pic" src="${DIR}${id}.webp" alt="" draggable="false">`;
+
+    function burst(x, y) {
+      const b = el('span', 'dm-burst', { x: `${x}px`, y: `${y}px` });
+      const cols = ['#ffd36e', '#fff', '#ff9ed2', '#a78bfa', '#7ee0ff'];
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2 + rnd(-0.2, 0.2), d = rnd(40, 90);
+        b.appendChild(el('i', '', { c: cols[i % cols.length], dx: `${(Math.cos(a) * d).toFixed(0)}px`, dy: `${(Math.sin(a) * d).toFixed(0)}px` }));
+      }
+      topLayer.appendChild(b);
+      setTimeout(() => b.remove(), 1000);
+      tone(rnd(900, 1300), 0, 0.25, 0.04, 'sine');
+    }
+    function puff(x, y, s, dx, dy, t = 1.3) {
+      if (trail.childElementCount > 70) return;
+      const p = el('span', 'dm-puff', { x: `${x}px`, y: `${y}px`, s: `${s}px`, dx: `${dx}px`, dy: `${dy}px`, t: `${t}s` });
+      trail.appendChild(p);
+      setTimeout(() => p.remove(), t * 1000 + 50);
+    }
+
+    function buildScene(instant) {
+      const token = ++dreamToken;
+      floats.innerHTML = ''; trail.innerHTML = ''; topLayer.innerHTML = '';
+      floats.classList.toggle('is-instant', instant);
+      const W = window.innerWidth, H = window.innerHeight, tall = H > W;
+      const ids = dreamIds, has = (id) => ids.includes(id);
+      const order = (...list) => Math.min(...list.filter(has).map((id) => ids.indexOf(id)));
+      const delay = (rank) => (instant ? 0 : 0.8 + rank * 0.5);       // seconds
+      const t0 = performance.now();
+      const startAt = (d, extra = 1.15) => t0 + (d + extra) * 1000;   // when an actor's story begins (after it arrives)
+      const baseY = H * (tall ? 0.93 : 0.95);                          // the ground line
+      const fit = (fw, fh, ar) => Math.min(W * fw, (H * fh) / ar);     // a width that fits both ways
+      const actors = [];
+      const arrive = (x, y, d) => { if (!instant) later(() => burst(x, y), (d + 0.75) * 1000); };
+
+      /* ground things, in the order they stand left to right */
+      const ground = [];
+      if (has('water-slide')) {
+        const riders = has('dinosaur') ? ['dinosaur', ...(has('beach-ball') ? ['beach-ball'] : [])] : ['beach-ball'];
+        ground.push({ w: fit(tall ? 0.62 : 0.42, tall ? 0.42 : 0.6, AR['water-slide']), rank: order('water-slide', 'dinosaur', 'beach-ball'), build: (x, w, d) => slide(x, w, d, riders), hgt: (w) => w * AR['water-slide'] });
+      } else if (has('dinosaur') && has('beach-ball')) {
+        ground.push({ w: fit(tall ? 0.34 : 0.17, tall ? 0.24 : 0.36, AR.dinosaur), rank: order('dinosaur', 'beach-ball'), build: dinoBall, hgt: (w) => w * AR.dinosaur * 1.67 + w * 0.36 });
+      } else if (has('dinosaur')) {
+        ground.push({ w: fit(tall ? 0.32 : 0.16, tall ? 0.23 : 0.34, AR.dinosaur), rank: order('dinosaur'), build: (x, w, d) => bob('dinosaur', x, w, d), hgt: (w) => w * AR.dinosaur });
+      }
+      if (has('pizza') && dreamPlace.id !== 'candy-land') {
+        ground.push({ w: fit(tall ? 0.22 : 0.1, tall ? 0.16 : 0.24, AR.pizza), rank: order('pizza'), build: (x, w, d) => bob('pizza', x, w, d), hgt: (w) => w * AR.pizza });
+      }
+      if (has('rocket')) ground.push({ w: fit(tall ? 0.15 : 0.075, tall ? 0.17 : 0.27, AR.rocket), rank: order('rocket'), build: rocket, hgt: (w) => w * AR.rocket });
+
+      // spread them across the space left of your Boo, shrinking to fit if need be
+      const band0 = W * (tall ? 0.04 : 0.05), band1 = W * (tall ? 0.8 : 0.74), gap = W * 0.04;
+      const need = ground.reduce((s, g) => s + g.w, 0) + gap * Math.max(0, ground.length - 1);
+      const k = Math.min(1, (band1 - band0) / need);
+      let gx = band0 + (band1 - band0 - need * k) / 2;
+      // (on tall screens your Boo's speech bubble floats above whatever stands under it)
+      let floor = Infinity;
+      ground.forEach((g) => {
+        const w = g.w * k;
+        g.build(gx + w / 2, w, delay(g.rank));
+        if (gx + w > W * 0.34) floor = Math.min(floor, baseY - g.hgt(w));
+        gx += w + gap * k;
+      });
+
+      if (has('beach-ball') && !has('water-slide') && !has('dinosaur')) {
+        ballBounce(delay(order('beach-ball')));
+        floor = Math.min(floor, baseY - H * 0.16 - W * 0.17);
+      }
+      sayFloor = tall ? floor : Infinity;
+      placeSay();
+      if (has('pizza') && dreamPlace.id === 'candy-land') pizzaRain(delay(order('pizza')));
+      if (has('rainbow')) rainbow(delay(order('rainbow')));
+
+      // run the story: one animation loop drives the slide riders, the bouncing ball and the rocket
+      if (still) actors.forEach((a) => a.pose());
+      else {
+        const frame = (now) => {
+          if (token !== dreamToken) return;
+          actors.forEach((a) => a.update(now));
+          requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      }
+
+      /* ── things with no partner: bob on the ground ── */
+      function bob(id, x, w, d) {
+        const a = el('div', 'dm-actor dm-actor--ground dm-bob',
+          { x: `${x}px`, y: `${baseY}px`, wpx: `${w}px`, d: `${d}s`, d2: `${(d + 1.2).toFixed(2)}s`, t: `${rnd(2.2, 3.4).toFixed(2)}s` },
+          `<span class="dm-shadow"></span>${pic(id)}`);
+        floats.appendChild(a);
+        arrive(x, baseY - (w * AR[id]) / 2, d);
+      }
+
+      /* ── the water slide, with riders taking turns ── */
+      function slide(x, w, d, riders) {
+        const h = w * AR['water-slide'];
+        const a = el('div', 'dm-actor dm-actor--ground dm-slide', { x: `${x}px`, y: `${baseY}px`, wpx: `${w}px`, d: `${d}s` },
+          `<span class="dm-shadow"></span>${pic('water-slide')}`);
+        floats.appendChild(a);
+        arrive(x, baseY - h / 2, d);
+        // the lane as points in px, with the distance along it
+        const pts = SLIDE_PATH.map(([px, py]) => [(px / 100) * w, (py / 100) * h]);
+        const lens = [0];
+        for (let i = 1; i < pts.length; i++) lens.push(lens[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+        const total = lens[lens.length - 1];
+        const at = (u) => {
+          const s = u * total;
+          let i = 1;
+          while (i < lens.length - 1 && lens[i] < s) i++;
+          const q = (s - lens[i - 1]) / (lens[i] - lens[i - 1] || 1);
+          return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * q, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * q];
+        };
+        const pool = [(SLIDE_POOL[0] / 100) * w, (SLIDE_POOL[1] / 100) * h];
+        const C = 3800;                           // one go: pop up at the top, wait, whoosh, splash, swim off
+
+        riders.forEach((id, i) => {
+          const rw = w * (id === 'dinosaur' ? 0.3 : 0.15), rh = rw * AR[id];
+          const r = el('div', 'dm-rider', { rw: `${rw}px` }, pic(id));
+          a.appendChild(r);
+          const start = startAt(d, 1.2) + i * (C / 2);
+          let splashed = -1;
+          const put = (p, ang, sc, op) => {
+            r.style.opacity = op;
+            r.style.transform = `translate(${p[0] - rw / 2}px, ${p[1] - rh * 0.9}px) rotate(${ang}deg) scale(${sc})`;
+          };
+          const angleAt = (u) => (id === 'dinosaur' ? -26 : -(u * total) / (rw / 2) * (180 / Math.PI));
+          actors.push({
+            pose: () => put(at(0.55), angleAt(0.55), 1, 1),
+            update(now) {
+              const t = now - start;
+              if (t < 0) { r.style.opacity = 0; return; }
+              const n = Math.floor(t / C), L = t % C;
+              if (L < 400) put(at(0), id === 'dinosaur' ? -8 : 0, ease.outBack(L / 400), 1);                 // pop up at the top
+              else if (L < 900) put(at(0), id === 'dinosaur' ? -8 + Math.sin(L / 70) * 4 : 0, 1, 1);          // a little wiggle… ready…
+              else if (L < 2200) { const u = ease.inQuad((L - 900) / 1300); put(at(u), angleAt(u), 1, 1); }   // wheee!
+              else if (L < 2800) {                                                                                // splash!
+                if (splashed !== n) { splashed = n; splash(a, pool, w, rw); }
+                const q = (L - 2200) / 600, e = at(1);
+                put([e[0] + (pool[0] - e[0]) * q, e[1] + (pool[1] - e[1]) * q + q * rh * 0.25], angleAt(1) * (id === 'dinosaur' ? 1 - q : 1), 1, 1 - q);
+              } else r.style.opacity = 0;
+            },
+          });
+        });
+      }
+      function splash(host, [x, y], w, rw) {
+        for (let i = 0; i < 12; i++) {
+          const s = rnd(0.05, 0.11) * rw;
+          const drop = el('span', 'dm-drop', {
+            x: `${x - s / 2}px`, y: `${y - s / 2}px`, s: `${s}px`,
+            dx: `${rnd(-0.16, 0.16) * w}px`, dy: `${-rnd(0.06, 0.2) * w}px`,
+          });
+          host.appendChild(drop);
+          setTimeout(() => drop.remove(), 900);
+        }
+        const ring = el('span', 'dm-ring', { x: `${x}px`, y: `${y}px`, s: `${rw * 1.2}px` });
+        host.appendChild(ring);
+        setTimeout(() => ring.remove(), 750);
+        SFX.splash();
+      }
+
+      /* ── dinosaur + beach ball: bouncing it on its nose ── */
+      function dinoBall(x, w, d) {
+        const h = w * AR.dinosaur, bw = w * 0.36;
+        const a = el('div', 'dm-actor dm-actor--ground', {
+          x: `${x}px`, y: `${baseY}px`, wpx: `${w}px`, d: `${d}s`, d2: `${(d + 1.2).toFixed(2)}s`,
+          bw: `${bw}px`, bl: `${(NOSE[0] / 100) * w - bw / 2}px`, bt: `${(NOSE[1] / 100) * h - bw}px`, jump: `${h * 0.8}px`,
+        }, `<span class="dm-shadow"></span><img class="dm-pic dm-dino" src="${DIR}dinosaur.webp" alt=""><span class="dm-nose-ball">${pic('beach-ball')}</span>`);
+        floats.appendChild(a);
+        arrive(x, baseY - h / 2, d);
+      }
+
+      /* ── a beach ball on its own: bouncing along the ground ── */
+      function ballBounce(d) {
+        const bw = tall ? W * 0.17 : Math.min(W * 0.08, H * 0.15);
+        const x0 = W * 0.08 + bw / 2, x1 = W * (tall ? 0.58 : 0.62), hop = H * (tall ? 0.16 : 0.24);
+        const a = el('div', 'dm-actor dm-actor--ground', { x: '0px', y: '0px', wpx: '0px', d: `${d}s` });
+        const shadow = el('span', 'dm-roll-shadow');
+        const ball = el('span', 'dm-roll-ball', {}, pic('beach-ball'));
+        Object.assign(shadow.style, { width: `${bw}px`, height: `${bw * 0.2}px` });
+        ball.style.width = `${bw}px`;
+        a.append(shadow, ball);
+        floats.appendChild(a);
+        arrive(x0, baseY - bw / 2, d);
+        const img = ball.firstChild, start = startAt(d, 1), P = 6500, hops = 5;
+        const draw = (x, y, sq) => {
+          ball.style.transform = `translate(${x - bw / 2}px, ${baseY - bw - y}px) scale(${sq ? '1.12, 0.85' : '1, 1'})`;
+          img.style.transform = `rotate(${(((x - x0) / (bw / 2)) * 180) / Math.PI}deg)`;
+          const s = 1 - (0.55 * y) / hop;
+          shadow.style.transform = `translate(${x - bw / 2}px, ${baseY - bw * 0.1}px) scale(${s})`;
+          shadow.style.opacity = s;
+        };
+        actors.push({
+          pose: () => draw(x0, 0, false),
+          update(now) {
+            const t = Math.max(0, now - start);
+            let s = (t % (2 * P)) / P;
+            if (s > 1) s = 2 - s;                                 // there and back again
+            const ph = (s * hops) % 1, y = hop * 4 * ph * (1 - ph);
+            draw(x0 + (x1 - x0) * s, t === 0 ? 0 : y, t > 0 && (ph < 0.05 || ph > 0.95));
+          },
+        });
+      }
+
+      /* ── the rocket: rumble, blast off, loop the loop, fly off the top, land again ── */
+      function rocket(x, w, d) {
+        const h = w * AR.rocket;
+        const a = el('div', 'dm-actor dm-actor--ground dm-actor--front', { x: `${x}px`, y: `${baseY}px`, wpx: `${w}px`, d: `${d}s` },
+          `<span class="dm-shadow"></span><div class="dm-rocket-body"><span class="dm-flame"></span>${pic('rocket')}</div>`);
+        floats.appendChild(a);
+        arrive(x, baseY - h / 2, d);
+        const body = a.querySelector('.dm-rocket-body'), shadow = a.querySelector('.dm-shadow');
+        const cx = x, cy = baseY - h / 2;                      // the rocket's centre, sitting on the ground
+        const dir = x > W / 2 ? -1 : 1;                        // loop towards the middle of the screen
+        const climb = H * (tall ? 0.36 : 0.4), R = Math.min(W, H) * 0.11, exitY = -(baseY + h);
+        // the flight path, relative to the resting centre
+        const path = [];
+        for (let i = 0; i <= 24; i++) path.push([0, (-climb * i) / 24]);
+        const ccx = dir * R, ccy = -climb, th0 = dir > 0 ? Math.PI : 0;
+        for (let j = 1; j <= 60; j++) { const th = th0 + dir * ((Math.PI * 2 * j) / 60); path.push([ccx + R * Math.cos(th), ccy + R * Math.sin(th)]); }
+        for (let i = 1; i <= 24; i++) path.push([0, -climb + ((exitY + climb) * i) / 24]);
+        const lens = [0];
+        for (let i = 1; i < path.length; i++) lens.push(lens[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]));
+        const total = lens[lens.length - 1];
+        const along = (s) => {
+          const dist = s * total;
+          let i = 1;
+          while (i < lens.length - 1 && lens[i] < dist) i++;
+          const q = (dist - lens[i - 1]) / (lens[i] - lens[i - 1] || 1);
+          const [x0, y0] = path[i - 1], [x1, y1] = path[i];
+          return { x: x0 + (x1 - x0) * q, y: y0 + (y1 - y0) * q, ang: Math.atan2(y1 - y0, x1 - x0) + Math.PI / 2 };
+        };
+        const IDLE = 1700, FLY = 4200, AWAY = 700, LAND = 2600, C = IDLE + FLY + AWAY + LAND;
+        const start = startAt(d, 1.1);
+        let lastPuff = 0, launched = -1;
+        const draw = (dx, dy, ang, flame, len) => {
+          body.style.transform = `translate(${dx}px, ${dy}px) rotate(${ang}rad)`;
+          body.style.setProperty('--flame', flame);
+          body.style.setProperty('--flen', len);
+          const lift = Math.min(1, -dy / (H * 0.3));
+          shadow.style.opacity = 1 - lift;
+          shadow.style.scale = `${1 - lift * 0.5}`;
+        };
+        const exhaust = (dx, dy, ang) => [cx + dx - Math.sin(ang) * h * 0.48, cy + dy + Math.cos(ang) * h * 0.48];
+        actors.push({
+          pose: () => draw(0, 0, 0, 0, 1),
+          update(now) {
+            const t = now - start;
+            if (t < 0) { draw(0, 0, 0, 0, 1); return; }
+            const n = Math.floor(t / C), L = t % C;
+            if (L < IDLE) {                                                     // engines warming up: rumble and smoke
+              const warm = L > IDLE * 0.45;
+              draw(warm ? Math.sin(L * 0.9) * 1.6 : 0, 0, 0, warm ? 0.6 : 0, 0.7);
+              if (warm && now - lastPuff > 110) {
+                lastPuff = now;
+                const side = Math.random() < 0.5 ? -1 : 1;
+                puff(cx + side * w * 0.3, baseY - h * 0.04, w * rnd(0.5, 0.8), side * rnd(20, 50), -rnd(5, 20), 1.5);
+              }
+            } else if (L < IDLE + FLY) {                                        // blast off!
+              if (launched !== n) { launched = n; SFX.launch(); }
+              const q = (L - IDLE) / FLY, p = along(0.3 * q + 0.7 * q * q);
+              draw(p.x, p.y, p.ang, 1, 1.5);
+              if (now - lastPuff > 45) {
+                lastPuff = now;
+                const [ex, ey] = exhaust(p.x, p.y, p.ang);
+                puff(ex, ey, w * rnd(0.45, 0.7), rnd(-12, 12), rnd(4, 14));
+              }
+            } else if (L < IDLE + FLY + AWAY) {                                 // off the top of the screen…
+              draw(0, exitY, 0, 0, 1);
+            } else {                                                            // …and gently back down to land
+              const q = (L - IDLE - FLY - AWAY) / LAND, y = exitY * (1 - ease.outCubic(q));
+              draw(0, y, 0, 0.9 - q * 0.5, 0.9);
+              if (q < 0.97 && now - lastPuff > 120) {
+                lastPuff = now;
+                const [ex, ey] = exhaust(0, y, 0);
+                puff(ex, ey, w * rnd(0.35, 0.55), rnd(-10, 10), rnd(10, 20), 1);
+              }
+            }
+          },
+        });
+      }
+
+      /* ── pizza in Candy Land: slices raining slowly from the sky ── */
+      function pizzaRain(d) {
+        const rain = el('div', 'dm-rain');
+        const n = tall ? 7 : 10, s = tall ? W * 0.15 : Math.min(W * 0.07, H * 0.13);
+        const lanes = [...Array(n).keys()].sort(() => Math.random() - 0.5);   // spread the first slices across the sky
+        for (let i = 0; i < n; i++) {
+          rain.appendChild(el('span', 'dm-slice', {
+            x: `${((lanes[i] + rnd(0.1, 0.8)) / n) * 94}%`, y: `${rnd(5, 70).toFixed(0)}%`, s: `${s * rnd(0.8, 1.2)}px`,
+            t: `${rnd(10, 15).toFixed(1)}s`, d: `${(d + i * 1.1).toFixed(2)}s`,
+            r0: `${rnd(-40, 40).toFixed(0)}deg`, r1: `${rnd(-220, 220).toFixed(0)}deg`,
+          }, pic('pizza')));
+        }
+        floats.appendChild(rain);
+        if (!instant) later(() => burst(W * 0.5, H * 0.12), (d + 0.3) * 1000);
+      }
+
+      /* ── the rainbow: sweeping across the top of the sky, sparkling ── */
+      function rainbow(d) {
+        const w = tall ? W * 0.94 : Math.min(W * 0.62, H * 1.0), top = H * (tall ? 0.1 : 0.05);
+        const a = el('div', 'dm-actor dm-actor--rainbow', { x: '50%', y: `${top}px`, wpx: `${w}px`, d: `${d}s` }, pic('rainbow'));
+        // sparkles along the arc, appearing in step with the sweep and then twinkling
+        const cols = ['#fff', '#ffd36e', '#ffe9f6', '#fff7c2'];
+        [[RAINBOW_R[0], 14], [RAINBOW_R[1], 9]].forEach(([r, count], ring) => {
+          for (let i = 0; i < count; i++) {
+            const th = Math.PI * (0.9 - (0.8 * i) / (count - 1));                 // from the left end round to the right
+            const xp = 50 + r * Math.cos(th) * 100;
+            const yp = (RAINBOW_CY - (r * Math.sin(th)) / AR.rainbow) * 100;
+            a.appendChild(el('span', 'spark', {
+              x: `${xp.toFixed(1)}%`, y: `${yp.toFixed(1)}%`, s: `${rnd(ring ? 10 : 14, ring ? 16 : 24).toFixed(0)}px`,
+              c: cols[i % cols.length], d: `${rnd(1.4, 2.4).toFixed(2)}s`, del: `${(d + 0.2 + (i / count) * 1.7).toFixed(2)}s`,
+            }));
+          }
+        });
+        floats.appendChild(a);
+        if (!instant) later(() => SFX.shimmer(), d * 1000);
+      }
+    }
+
+    // turning a phone or resizing the window re-lays the scene (without replaying the arrivals)
+    let resizeTmr = null;
+    window.addEventListener('resize', () => {
+      if (stageNo !== 4 || dream.hidden) return;
+      clearTimeout(resizeTmr);
+      resizeTmr = setTimeout(() => { if (stageNo === 4 && !dream.hidden) buildScene(true); }, 250);
+    });
+
+    /* ── Dream Again: back to stage 1 ─────────────────────────── */
+    function dreamAgain() {
+      if (stageNo !== 4 || dream.hidden) return;
+      timers.forEach(clearTimeout); timers = [];
+      dreamToken++;                              // stops the story's animation loop
+      SFX.again();
+      dream.classList.add('is-closing');
+      setTimeout(() => {
+        dream.hidden = true;
+        dream.classList.remove('is-open', 'is-closing');
+        floats.innerHTML = ''; fx.innerHTML = ''; trail.innerHTML = ''; topLayer.innerHTML = '';
+        document.documentElement.classList.remove('dm-lock');
+      }, still ? 0 : 500);
+      reset();
+      window.scrollTo(0, 0);
+      later(() => $('dm-places').querySelector('button')?.focus({ preventScroll: true }), 50);
+    }
+    function reset() {
+      [...placed].forEach((p) => removeItem(p.item, true));
+      placed = [];
+      bed.querySelectorAll('.dm-badge, .dm-myboo, .dm-zzz, .dm-placed').forEach((el) => el.remove());
+      bed.classList.remove('is-away', 'is-shake');
+      place = null; boo = null;
+      showStage(1);
+    }
+    $('dm-again').addEventListener('click', dreamAgain);
+    document.addEventListener('keydown', (e) => {
+      if (stageNo !== 4 || dream.hidden) return;
+      if (e.key === 'Escape') dreamAgain();
+      if (e.key === 'Tab') { e.preventDefault(); $('dm-again').focus(); }   // keep focus inside the dream
+    });
+
+    showStage(1);
+  })();
+  </script>
+</body>
+</html>
