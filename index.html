@@ -3,113 +3,185 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Stuffy Boos — Coming Soon to The Pillow Patch</title>
-  <meta name="description" content="The Stuffy Boos are brave little heroes living in the magical Pillow Patch, ready to stomp out big feelings and save the day. Coming soon — sign up to be the first to know.">
+  <title>SNUGGEROO — Meet your new bedtime best friends</title>
+  <meta name="description" content="Meet the Snuggeroos: seven cosy bedtime best friends from the Pillow Patch, each with a pouch full of exactly what bedtime needs.">
+  <meta name="theme-color" content="#1a0a2e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/snuggeroo.css">
 </head>
-<body class="home night">
-  <a class="skip-link" href="#main">Skip to content</a>
+<body>
+  <a class="skip-link" href="#crew">Skip to the characters</a>
 
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="logo" href="index.html" aria-label="The Stuffy Boos home">
-        <span class="logo-mark" aria-hidden="true">🐾</span>
-        Stuffy Boos
-      </a>
-      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav">☰</button>
-      <nav class="nav" id="nav" aria-label="Main">
-        <a href="index.html" aria-current="page">Home</a>
-        <a href="characters.html">Characters</a>
-        <a href="games.html">Games</a>
-        <a href="about.html">About</a>
-        <a href="stay-connected.html" class="nav-cta">Stay Connected</a>
-      </nav>
-    </div>
-  </header>
+  <!-- a little pouch icon, used on every character card -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="pouch" viewBox="0 0 24 24">
+      <path d="M4.5 9.5h15l-1.3 8.2a3 3 0 0 1-3 2.5H8.8a3 3 0 0 1-3-2.5z" fill="currentColor" opacity=".9"/>
+      <path d="M8 9.5V8a4 4 0 0 1 8 0v1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M12 12.6l.8 1.6 1.7.2-1.3 1.2.4 1.7-1.6-.9-1.6.9.4-1.7-1.3-1.2 1.7-.2z" fill="#1a0a2e"/>
+    </symbol>
+  </svg>
 
-  <main id="main">
-    <!-- HERO: full-screen scene with centred poster-style copy -->
-    <section class="hero">
-      <img class="hero-bg"
-           src="images/pillow-patch2.webp"
-           srcset="images/pillow-patch2-900.webp 900w, images/pillow-patch2.webp 1376w"
-           sizes="100vw" width="1376" height="768"
-           alt="The Pillow Patch at dusk: the Stuffy Boos' cloud-topped tower glowing with warm lights, surrounded by patchwork hills, hanging golden stars and a smiling sun"
-           fetchpriority="high">
-      <div class="hero-shade" aria-hidden="true"></div>
-      <!-- Glowing lights, glints and fireflies, pinned to the picture by js/landing.js -->
-      <div class="hero-scene" aria-hidden="true"></div>
-      <div class="sky" data-sky="hero" aria-hidden="true"></div>
-      <!-- Shooting stars streak through here -->
-      <div class="hero-shooting" aria-hidden="true"></div>
+  <main>
+    <!-- 1. HERO -->
+    <header class="hero">
+      <div class="sky" data-stars="70" data-sparkles="14" aria-hidden="true"></div>
+      <h1 class="logo" aria-label="Snuggeroo"><span style="--i:0">S</span><span style="--i:1">N</span><span style="--i:2">U</span><span style="--i:3">G</span><span style="--i:4">G</span><span style="--i:5">E</span><span style="--i:6">R</span><span style="--i:7">O</span><span style="--i:8">O</span></h1>
+      <p class="tagline">Meet your new bedtime best friends</p>
 
-      <div class="wrap hero-copy">
-        <span class="badge badge-night">✨ Coming soon to The Pillow Patch</span>
-        <h1><span>When fears come out at night,</span> <span class="accent">the Stuffy Boos make it right</span></h1>
-        <p class="lede">Meet the Stuffy Boos — brave little heroes living in the magical Pillow Patch, ready to stomp out big feelings and save the day.</p>
-        <div class="btn-row">
-          <a class="btn btn-gold" href="stay-connected.html">🔔 Tell me when it's ready</a>
-          <a class="btn btn-ghost" href="characters.html">Meet the Stuffy Boos</a>
-        </div>
+      <ul class="lineup" aria-label="The seven Snuggeroos">
+        <li style="--z:1"><img src="images/characters/web/jumpin-jammies.webp" width="560" height="897" alt="Jumpin Jammies" style="--s:.86;--t:3.1s;--d:-0.4s"></li>
+        <li style="--z:2"><img src="images/characters/web/snack-attack.webp" width="560" height="856" alt="Snack Attack" style="--s:.91;--t:3.6s;--d:-1.2s"></li>
+        <li style="--z:3"><img src="images/characters/web/story-roary.webp" width="560" height="752" alt="Story Roary" style="--s:.96;--t:3.3s;--d:-2s"></li>
+        <li style="--z:4"><img src="images/characters/web/baby-blanky.webp" width="560" height="645" alt="Baby Blanky" style="--s:1;--t:3.9s;--d:-0.8s"></li>
+        <li style="--z:3"><img src="images/characters/web/nighty-light.webp" width="560" height="803" alt="Nighty Light" style="--s:.96;--t:3.4s;--d:-1.6s"></li>
+        <li style="--z:2"><img src="images/characters/web/peek.webp" width="560" height="1009" alt="Peek" style="--s:.91;--t:3.7s;--d:-2.4s"></li>
+        <li style="--z:1"><img src="images/characters/web/boo.webp" width="560" height="687" alt="Boo" style="--s:.86;--t:3.2s;--d:-1s"></li>
+      </ul>
+      <div class="ground" aria-hidden="true"></div>
+
+      <a class="scroll-hint" href="#crew" aria-label="Meet the crew">↓</a>
+    </header>
+
+    <!-- 2. MEET THE CREW -->
+    <section class="section crew" id="crew" aria-labelledby="crew-title">
+      <div class="sky" data-stars="40" aria-hidden="true"></div>
+      <div class="wrap" style="position:relative">
+        <h2 class="section-title" id="crew-title">Meet the Crew</h2>
+        <p class="section-lede">Seven bedtime best friends, and every one of them has a pouch full of something special.</p>
+
+        <ul class="crew-grid">
+          <li>
+            <article class="card" style="--glow:rgba(255,205,150,.38)">
+              <div class="card-art"><img src="images/characters/web/baby-blanky.webp" width="560" height="645" alt="Baby Blanky, a sleepy pastel Snuggeroo wrapped in a heap of soft blankets" loading="lazy"></div>
+              <h3 class="card-name">Baby Blanky</h3>
+              <p class="card-desc">The ultimate comfort creature — always wrapped up, always cozy</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> Endless soft blankets</span></p>
+            </article>
+          </li>
+          <li>
+            <article class="card" style="--glow:rgba(255,150,80,.36)">
+              <div class="card-art"><img src="images/characters/web/snack-attack.webp" width="560" height="856" alt="Snack Attack, an orange Snuggeroo mid-bite with a cookie, a cupcake and a pouch overflowing with treats" loading="lazy"></div>
+              <h3 class="card-name">Snack Attack</h3>
+              <p class="card-desc">Obsessed with snacks, always mid-bite, pure chaotic energy</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> Every snack you could ever want</span></p>
+            </article>
+          </li>
+          <li>
+            <article class="card" style="--glow:rgba(190,150,255,.4)">
+              <div class="card-art"><img src="images/characters/web/peek.webp" width="560" height="1009" alt="Peek, a lavender Snuggeroo peering shyly over a little pillow, with a telescope and a tiny bunny in the pouch" loading="lazy"></div>
+              <h3 class="card-name">Peek</h3>
+              <p class="card-desc">Shy but wildly curious — always watching, always knowing</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> A telescope and a tiny stuffed bunny</span></p>
+            </article>
+          </li>
+          <li>
+            <article class="card" style="--glow:rgba(110,215,255,.34)">
+              <div class="card-art"><img src="images/characters/web/story-roary.webp" width="560" height="752" alt="Story Roary, a sky-blue Snuggeroo holding open a storybook with castles and dragons spilling out" loading="lazy"></div>
+              <h3 class="card-name">Story Roary</h3>
+              <p class="card-desc">Reads one book and immediately has 47 adventures to tell you about</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> A magical scroll with new stories every time</span></p>
+            </article>
+          </li>
+          <li>
+            <article class="card" style="--glow:rgba(180,255,100,.28)">
+              <div class="card-art"><img src="images/characters/web/jumpin-jammies.webp" width="560" height="897" alt="Jumpin Jammies, a lime-green Snuggeroo leaping off a little moon-and-star trampoline" loading="lazy"></div>
+              <h3 class="card-name">Jumpin Jammies</h3>
+              <p class="card-desc">Cannot stop moving — bounces, dances, somehow falls asleep mid-jump</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> A mini trampoline with moon and star design</span></p>
+            </article>
+          </li>
+          <li>
+            <article class="card" style="--glow:rgba(150,175,255,.38)">
+              <div class="card-art"><img src="images/characters/web/nighty-light.webp" width="560" height="803" alt="Nighty Light, a calm periwinkle Snuggeroo holding up a glowing star, with more stars in the pouch" loading="lazy"></div>
+              <h3 class="card-name">Nighty Light</h3>
+              <p class="card-desc">The calm one who helps everyone settle down at the end of the night</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> Glowing stars pulled straight from the sky</span></p>
+            </article>
+          </li>
+          <li>
+            <article class="card" style="--glow:rgba(255,120,200,.34)">
+              <div class="card-art"><img src="images/characters/web/boo.webp" width="560" height="687" alt="Boo, a pink Snuggeroo blowing a big bubble that says BOO" loading="lazy"></div>
+              <h3 class="card-name">Boo</h3>
+              <p class="card-desc">Sweet little prankster — blows a BOO Bubble and watches you jump every time</p>
+              <p class="card-pouch"><svg aria-hidden="true"><use href="#pouch"/></svg><span><b>Pouch:</b> Endless bubble solution</span></p>
+            </article>
+          </li>
+        </ul>
       </div>
-
-      <a class="scroll-cue" href="#squad" aria-label="Scroll down">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
     </section>
 
-    <!-- MEET THE SQUAD intro (text only until character art arrives) -->
-    <section class="intro" id="squad">
-      <div class="sky" data-sky="night" aria-hidden="true"></div>
-      <div class="wrap center">
-        <h2>Meet the Stuffy Boos</h2>
-        <p class="lede">Peek, Boo Boo and the Stuffy Boos Squad. One big mission: chasing bedtime fears away.</p>
-        <a class="btn btn-ghost" href="characters.html">Meet the Squad</a>
-      </div>
-    </section>
-
-    <!-- WORLD teaser -->
-    <section class="section">
-      <div class="wrap two-col">
-        <div class="card">
-          <h2>A magical world to explore</h2>
-          <p>High above the clouds lies the Pillow Patch, a soft and magical world of patchwork hills, floating clouds and twinkling stars. When fears creep out at bedtime, the Stuffy Boos are always ready to save the day!</p>
-          <a class="btn btn-gold" href="about.html">Explore The Pillow Patch</a>
-        </div>
-        <div class="card">
-          <h3>🏰 Stuffy Boos HQ</h3>
-          <p>Their cloud-top tower is the heart of the Pillow Patch: part clubhouse, part mission control, and always ready for the next adventure.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="section" style="padding-top:0">
+    <!-- 3. THE PILLOW PATCH -->
+    <section class="section patch" aria-labelledby="patch-title">
+      <div class="sky" data-stars="60" data-sparkles="8" aria-hidden="true"></div>
+      <div class="moon" aria-hidden="true"></div>
       <div class="wrap">
-        <div class="cta-band">
-          <div class="sky" data-sky="night" aria-hidden="true"></div>
-          <h2>Be the first to know</h2>
-          <p>Parents, pop your email in and we'll send one happy note when the Stuffy Boos are ready to meet you.</p>
-          <a class="btn btn-gold" href="stay-connected.html">Sign me up ✨</a>
+        <h2 class="section-title" id="patch-title">Welcome to the Pillow Patch</h2>
+        <p class="patch-copy">The Pillow Patch is where all the Snuggeroos live. It's the coziest corner of the universe, full of soft landings, endless snacks, and stories that never end. Every Snuggeroo brings something special — and their pouch is always full of exactly what the Pillow Patch needs.</p>
+      </div>
+
+      <!-- a soft landscape of plump, buttoned pillows rolling away like hills -->
+      <div class="pillows" aria-hidden="true">
+        <span class="pillow pillow--back" style="--x:-6%;--b:44%;--w:22%;--r:-4deg;--c1:#c9b3ff;--c2:#7d5ccc;--d:-1s"></span>
+        <span class="pillow pillow--back" style="--x:20%;--b:48%;--w:19%;--r:3deg;--c1:#b9d2ff;--c2:#6a86d8;--d:-3s"></span>
+        <span class="pillow pillow--back" style="--x:43%;--b:45%;--w:20%;--r:-2deg;--c1:#ffc6e4;--c2:#d77fb4;--d:-2s"></span>
+        <span class="pillow pillow--back" style="--x:68%;--b:47%;--w:19%;--r:4deg;--c1:#c9b3ff;--c2:#7d5ccc;--d:-4s"></span>
+        <span class="pillow pillow--back" style="--x:88%;--b:43%;--w:19%;--r:-3deg;--c1:#ffe6ad;--c2:#d9a94e;--d:-5s"></span>
+
+        <span class="pillow pillow--mid" style="--x:-8%;--b:20%;--w:24%;--r:5deg;--c1:#ffe6ad;--c2:#d9a94e;--d:-2.5s"></span>
+        <span class="pillow pillow--mid" style="--x:22%;--b:24%;--w:22%;--r:-4deg;--c1:#c9b3ff;--c2:#7d5ccc;--d:-0.5s"></span>
+        <span class="pillow pillow--mid" style="--x:50%;--b:21%;--w:23%;--r:3deg;--c1:#b9d2ff;--c2:#6a86d8;--d:-3.5s"></span>
+        <span class="pillow pillow--mid" style="--x:78%;--b:23%;--w:22%;--r:-5deg;--c1:#ffc6e4;--c2:#d77fb4;--d:-1.5s"></span>
+
+        <span class="pillow" style="--x:-10%;--b:-12%;--w:29%;--r:-3deg;--c1:#ffc6e4;--c2:#d77fb4;--d:-4.5s"></span>
+        <span class="pillow" style="--x:26%;--b:-16%;--w:30%;--r:2deg;--c1:#ffe6ad;--c2:#d9a94e;--d:-2s"></span>
+        <span class="pillow" style="--x:64%;--b:-13%;--w:30%;--r:-2deg;--c1:#c9b3ff;--c2:#7d5ccc;--d:-3s"></span>
+
+        <div class="fireflies">
+          <span style="--x:12%;--b:62%;--t:7s;--d:-1s;--dx:30px"></span>
+          <span style="--x:34%;--b:70%;--t:9s;--d:-4s;--dx:-24px"></span>
+          <span style="--x:58%;--b:58%;--t:8s;--d:-2s;--dx:36px"></span>
+          <span style="--x:80%;--b:66%;--t:10s;--d:-6s;--dx:-30px"></span>
+          <span style="--x:92%;--b:40%;--t:7.5s;--d:-3s;--dx:-20px"></span>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      <a class="logo" href="index.html">Stuffy Boos</a>
-      <nav class="footer-nav" aria-label="Footer">
-        <a href="index.html">Home</a><a href="characters.html">Characters</a><a href="games.html">Games</a><a href="about.html">About</a><a href="stay-connected.html">Stay Connected</a>
-      </nav>
-      <p class="small" style="color:#cbbdf0">© <span data-year>2026</span> The Stuffy Boos. All rights reserved.</p>
-    </div>
+  <!-- 4. FOOTER -->
+  <footer class="footer">
+    <p class="footer-logo">SNUGGEROO</p>
+    <p class="footer-tag">Sweet dreams start here ✨</p>
+    <p class="footer-small">© <span id="year">2026</span> Snuggeroo. All rights reserved.</p>
   </footer>
 
-  <script src="js/main.js"></script>
-  <script src="js/landing.js"></script>
+  <script>
+    /* sprinkle twinkling stars and floating sparkles into each .sky */
+    (() => {
+      const rnd = (a, b) => a + Math.random() * (b - a);
+      const few = window.innerWidth < 600;
+      document.querySelectorAll('.sky').forEach((sky) => {
+        const stars = Math.round(Number(sky.dataset.stars || 0) * (few ? 0.55 : 1));
+        const sparkles = Math.round(Number(sky.dataset.sparkles || 0) * (few ? 0.6 : 1));
+        for (let i = 0; i < stars; i++) {
+          const s = document.createElement('span');
+          s.className = Math.random() < 0.25 ? 'star star--gold' : 'star';
+          s.style.cssText = `--x:${rnd(0, 100).toFixed(1)}%;--y:${rnd(0, 92).toFixed(1)}%;--s:${rnd(1.5, 3.6).toFixed(1)}px;` +
+            `--t:${rnd(2.2, 5).toFixed(2)}s;--d:-${rnd(0, 5).toFixed(2)}s`;
+          sky.appendChild(s);
+        }
+        const cols = ['#ffd700', '#ffe76a', '#ffffff', '#ffd1f0'];
+        for (let i = 0; i < sparkles; i++) {
+          const s = document.createElement('span');
+          s.className = 'sparkle';
+          s.style.cssText = `--x:${rnd(3, 97).toFixed(1)}%;--y:${rnd(4, 80).toFixed(1)}%;--s:${rnd(10, 22).toFixed(0)}px;` +
+            `--c:${cols[i % cols.length]};--t:${rnd(4, 7).toFixed(2)}s;--d:-${rnd(0, 7).toFixed(2)}s`;
+          sky.appendChild(s);
+        }
+      });
+      document.getElementById('year').textContent = new Date().getFullYear();
+    })();
+  </script>
 </body>
 </html>

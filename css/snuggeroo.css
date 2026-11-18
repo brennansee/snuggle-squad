@@ -1,0 +1,285 @@
+/* ==========================================================
+   SNUGGEROO — cosy, magical, bedtime world
+   Deep purple night, warm gold, white text, soft round shapes.
+   ========================================================== */
+:root {
+  --night: #1a0a2e;
+  --night-2: #241040;
+  --night-3: #321a5c;
+  --gold: #ffd700;
+  --gold-soft: #ffe76a;
+  --gold-deep: #c99700;
+  --white: #ffffff;
+  --text-soft: rgba(255, 255, 255, 0.82);
+  --card: rgba(255, 255, 255, 0.06);
+  --card-line: rgba(255, 215, 0, 0.22);
+  --radius: 32px;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --font: "Nunito", ui-rounded, system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; min-height: 100vh;
+  background: var(--night); color: var(--white);
+  font-family: var(--font); font-size: 1.0625rem; line-height: 1.6;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+h1, h2, h3, p { margin: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link {
+  position: absolute; left: 1rem; top: -4rem; z-index: 50; padding: 0.7rem 1.2rem; border-radius: 999px;
+  background: var(--gold); color: var(--night); font-weight: 800; text-decoration: none; transition: top 0.2s;
+}
+.skip-link:focus { top: 1rem; }
+
+/* ── Twinkling stars and sparkles (made by the script) ─────────── */
+.sky { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.star {
+  position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 calc(var(--s) * 3) rgba(255, 255, 255, 0.8);
+  opacity: 0.2; animation: twinkle var(--t) ease-in-out var(--d) infinite;
+}
+.star--gold { background: var(--gold-soft); box-shadow: 0 0 calc(var(--s) * 3) rgba(255, 215, 0, 0.9); }
+.sparkle {
+  position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1;
+  background: var(--c, var(--gold));
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  filter: drop-shadow(0 0 6px rgba(255, 230, 120, 0.9));
+  animation: sparkle-float var(--t) ease-in-out var(--d) infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: 0.15; scale: 0.7; } 50% { opacity: 1; scale: 1; } }
+@keyframes sparkle-float {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0.4) rotate(0deg); }
+  30%, 70% { opacity: 1; }
+  50% { transform: translateY(-26px) scale(1) rotate(90deg); }
+}
+
+/* ── 1. Hero ──────────────────────────────────────────────────── */
+.hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: 100vh; min-height: 100svh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: clamp(3rem, 9vh, 6rem) var(--gutter) 0; text-align: center;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 30%, rgba(120, 60, 200, 0.35), transparent 70%),
+    linear-gradient(180deg, #12061f 0%, var(--night) 45%, var(--night-2) 100%);
+}
+.logo {
+  position: relative; z-index: 2;
+  font-size: clamp(3.1rem, 13.5vw, 9.5rem); font-weight: 900; line-height: 0.95; letter-spacing: 0.02em;
+  color: var(--gold);
+  text-shadow:
+    0 0 18px rgba(255, 215, 0, 0.55),
+    0 0 46px rgba(255, 190, 40, 0.35),
+    0 0.06em 0 var(--gold-deep),
+    0 0.1em 0.18em rgba(0, 0, 0, 0.45);
+}
+.logo span { display: inline-block; animation: letter-bob 3.2s ease-in-out calc(var(--i) * -0.22s) infinite; }
+@keyframes letter-bob { 0%, 100% { translate: 0 0; rotate: -2deg; } 50% { translate: 0 -0.06em; rotate: 2deg; } }
+.tagline {
+  position: relative; z-index: 2; margin-top: clamp(0.8rem, 2vh, 1.4rem);
+  font-size: clamp(1.15rem, 3.4vw, 1.9rem); font-weight: 700; color: var(--white);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* all seven, shoulder to shoulder on a soft glowing ground */
+.lineup {
+  position: relative; z-index: 2; list-style: none; margin: clamp(1.5rem, 5vh, 3rem) 0 0; padding: 0;
+  display: flex; justify-content: center; align-items: flex-end;
+  --h: clamp(112px, 21vw, 300px); --overlap: clamp(15px, 2.3vw, 30px);
+}
+.lineup li { position: relative; z-index: var(--z); margin-inline: calc(var(--overlap) * -1); }
+.lineup img {
+  height: calc(var(--h) * var(--s)); width: auto; max-width: none;
+  filter: drop-shadow(0 12px 14px rgba(10, 0, 30, 0.55));
+  transform-origin: 50% 100%;
+  animation: buddy-bob var(--t) ease-in-out var(--d) infinite;
+  transition: translate 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.lineup li:hover img { translate: 0 -14px; }
+@keyframes buddy-bob { 0%, 100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-7px) rotate(1.2deg); } }
+.ground {
+  position: relative; z-index: 1; width: min(1100px, 130%); height: clamp(70px, 12vw, 150px);
+  margin-top: calc(clamp(70px, 12vw, 150px) * -0.55);
+  /* a soft mound of light that fades away at the edges */
+  background:
+    radial-gradient(ellipse 42% 45% at 50% 32%, rgba(255, 230, 130, 0.6), rgba(255, 205, 90, 0.18) 50%, transparent 72%),
+    radial-gradient(ellipse 50% 95% at 50% 100%, rgba(78, 44, 128, 0.95) 0 52%, rgba(60, 32, 104, 0.5) 64%, transparent 74%);
+}
+.scroll-hint {
+  position: absolute; z-index: 3; bottom: clamp(0.8rem, 3vh, 1.6rem); left: 50%; translate: -50% 0;
+  width: 2.6rem; height: 2.6rem; border-radius: 50%; display: grid; place-items: center;
+  color: var(--night); background: var(--gold); text-decoration: none; font-weight: 900; font-size: 1.2rem;
+  box-shadow: 0 0 22px rgba(255, 215, 0, 0.55); animation: hint-bob 2s ease-in-out infinite;
+}
+.scroll-hint:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+@keyframes hint-bob { 50% { translate: -50% 6px; } }
+
+/* ── Section basics ───────────────────────────────────────────── */
+.section { position: relative; padding: clamp(4rem, 10vw, 7rem) var(--gutter); }
+.wrap { max-width: 1120px; margin: 0 auto; }
+.section-title {
+  text-align: center; font-size: clamp(2.2rem, 6.5vw, 3.8rem); font-weight: 900; line-height: 1.05; color: var(--gold);
+  text-shadow: 0 0 22px rgba(255, 215, 0, 0.35);
+}
+.section-lede { max-width: 38rem; margin: 0.9rem auto 0; text-align: center; color: var(--text-soft); font-size: clamp(1.05rem, 2.4vw, 1.2rem); }
+
+/* ── 2. Meet the Crew ─────────────────────────────────────────── */
+.crew { background: linear-gradient(180deg, var(--night-2), var(--night) 30%); }
+.crew-grid {
+  list-style: none; margin: clamp(2.5rem, 6vw, 4rem) auto 0; padding: 0;
+  display: grid; gap: clamp(1.25rem, 3vw, 2rem);
+  grid-template-columns: 1fr; max-width: 440px;
+}
+/* tablets: two across */
+@media (min-width: 640px) {
+  .crew-grid { grid-template-columns: repeat(2, 1fr); max-width: 760px; }
+  .crew-grid li:last-child { grid-column: 1 / -1; justify-self: center; width: calc(50% - 1rem); }
+}
+/* desktop: 3 – 2 – 2, every card the same size, the shorter rows centred */
+@media (min-width: 1000px) {
+  .crew-grid { grid-template-columns: repeat(6, 1fr); max-width: 1120px; }
+  .crew-grid li { grid-column: span 2; }
+  .crew-grid li:nth-child(4), .crew-grid li:nth-child(6) { grid-column: 2 / span 2; }
+  .crew-grid li:nth-child(5), .crew-grid li:nth-child(7) { grid-column: 4 / span 2; }
+  .crew-grid li:last-child { justify-self: stretch; width: auto; }
+}
+.card {
+  height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 1.4rem 1.5rem 1.7rem; border-radius: var(--radius);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  border: 2px solid var(--card-line);
+  box-shadow: 0 18px 40px rgba(5, 0, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.25s cubic-bezier(0.3, 1.5, 0.5, 1), border-color 0.25s, box-shadow 0.25s;
+}
+.card:hover { transform: translateY(-8px) rotate(-1deg); border-color: rgba(255, 215, 0, 0.6); box-shadow: 0 24px 50px rgba(5, 0, 20, 0.55), 0 0 34px rgba(255, 215, 0, 0.18); }
+.crew-grid li:nth-child(even) .card:hover { transform: translateY(-8px) rotate(1deg); }
+.card-art {
+  position: relative; width: 100%; height: clamp(220px, 26vw, 270px); margin-bottom: 1rem;
+  border-radius: 26px;
+  background: radial-gradient(ellipse 62% 58% at 50% 58%, var(--glow), transparent 72%);
+}
+.card-art::after {           /* a soft cushion of light to stand on */
+  content: ""; position: absolute; left: 22%; right: 22%; bottom: 2%; height: 9%;
+  border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 225, 130, 0.4), transparent 70%);
+}
+.card-art img {
+  position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%;
+  filter: drop-shadow(0 10px 14px rgba(10, 0, 30, 0.5)); transition: scale 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.card:hover .card-art img { scale: 1.06; }
+.card-name { font-size: clamp(1.5rem, 3vw, 1.75rem); font-weight: 900; line-height: 1.15; color: var(--gold); }
+.card-desc { margin-top: 0.45rem; color: var(--white); font-weight: 600; }
+.card-pouch {
+  margin-top: auto; padding-top: 1rem; display: inline-flex; align-items: flex-start; gap: 0.45rem; text-align: left;
+  font-size: 0.9rem; font-weight: 700; color: var(--text-soft);
+}
+.card-pouch svg { flex: none; width: 1.25rem; height: 1.25rem; margin-top: 0.08rem; color: var(--gold); }
+.card-pouch b { color: var(--gold-soft); font-weight: 800; }
+
+/* ── 3. The Pillow Patch ──────────────────────────────────────── */
+.patch {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: clamp(640px, 92vh, 860px); padding-bottom: clamp(15rem, 34vw, 22rem);
+  background:
+    radial-gradient(circle at 90% 9%, rgba(255, 236, 160, 0.24), transparent 14%),
+    linear-gradient(180deg, var(--night) 0%, #2a1250 55%, #45226f 100%);
+}
+.moon {
+  position: absolute; z-index: 0; right: clamp(4%, 7vw, 9%); top: clamp(1rem, 3vw, 2.2rem);
+  width: clamp(70px, 10vw, 120px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #fffbe6, #ffe98c 55%, #f5c842);
+  box-shadow: 0 0 40px rgba(255, 230, 130, 0.7), 0 0 120px rgba(255, 215, 0, 0.35);
+}
+.moon::after {               /* a sleepy little crescent shadow */
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 75% 30%, rgba(60, 30, 100, 0.35) 0 28%, transparent 30%);
+}
+.patch .wrap { position: relative; z-index: 3; }
+.patch-copy {
+  max-width: 42rem; margin: 1.6rem auto 0; padding: clamp(1.4rem, 4vw, 2.2rem);
+  border-radius: var(--radius); text-align: center;
+  background: rgba(26, 10, 46, 0.55); border: 2px solid var(--card-line);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(5, 0, 20, 0.45);
+  font-size: clamp(1.05rem, 2.4vw, 1.25rem); font-weight: 600; color: var(--white);
+}
+
+/* the landscape: rows of plump, buttoned pillows rolling away like hills */
+.pillows { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: clamp(15rem, 34vw, 22rem); pointer-events: none; }
+.pillows::after {            /* melt the front pillows softly into the footer */
+  content: ""; position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; height: 28%;
+  background: linear-gradient(180deg, transparent, #45226f 85%);
+}
+.pillow {
+  position: absolute; left: var(--x); bottom: var(--b); width: var(--w); aspect-ratio: 1.7;
+  border-radius: 46% 46% 42% 42% / 58% 58% 42% 42%;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(0, 0, 0, 0.18) 0 3.2%, rgba(255, 255, 255, 0.35) 3.4% 4.4%, transparent 4.8%),
+    radial-gradient(ellipse 60% 40% at 38% 26%, rgba(255, 255, 255, 0.45), transparent 70%),
+    linear-gradient(170deg, var(--c1), var(--c2));
+  box-shadow: inset 0 -14px 26px rgba(30, 0, 60, 0.35), inset 0 10px 18px rgba(255, 255, 255, 0.25), 0 18px 30px rgba(10, 0, 30, 0.35);
+  rotate: var(--r);
+  animation: pillow-breathe var(--t, 7s) ease-in-out var(--d, 0s) infinite;
+}
+.pillow::before, .pillow::after {   /* soft seams from the button */
+  content: ""; position: absolute; top: 46%; width: 30%; height: 2px; border-radius: 2px; background: rgba(40, 0, 70, 0.14);
+}
+.pillow::before { left: 18%; rotate: 8deg; }
+.pillow::after { right: 18%; rotate: -8deg; }
+.pillow--back { filter: brightness(0.62) saturate(0.85); }
+.pillow--mid { filter: brightness(0.82); }
+@keyframes pillow-breathe { 50% { scale: 1.025 0.975; } }
+.fireflies span {
+  position: absolute; z-index: 2; left: var(--x); bottom: var(--b); width: 6px; height: 6px; border-radius: 50%;
+  background: #fff6a8; box-shadow: 0 0 12px 4px rgba(255, 230, 110, 0.7);
+  animation: firefly var(--t) ease-in-out var(--d) infinite;
+}
+@keyframes firefly {
+  0%, 100% { opacity: 0; transform: translate(0, 0); }
+  20%, 80% { opacity: 1; }
+  50% { transform: translate(var(--dx), -40px); }
+}
+
+/* ── 4. Footer ────────────────────────────────────────────────── */
+.footer {
+  padding: clamp(3rem, 7vw, 4.5rem) var(--gutter) clamp(2.5rem, 6vw, 3.5rem); text-align: center;
+  background: linear-gradient(180deg, #45226f, var(--night) 60%);
+}
+.footer-logo { font-size: clamp(2.2rem, 7vw, 3.4rem); font-weight: 900; letter-spacing: 0.03em; color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+.footer-tag { margin-top: 0.4rem; font-size: clamp(1.05rem, 2.6vw, 1.25rem); font-weight: 700; color: var(--white); }
+.footer-small { margin-top: 1.4rem; font-size: 0.85rem; color: rgba(255, 255, 255, 0.55); }
+
+/* ── Phones ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* a wider landscape than the screen, so the pillows stay plump and run off the edges */
+  .pillows { left: -32%; right: -32%; }
+  .patch { min-height: 0; padding-bottom: 16rem; }
+  .moon { width: 54px; top: 0.7rem; right: 5%; }
+}
+@media (max-width: 520px) {
+  /* phones: too narrow for seven in one line, so they stand like a group photo:
+     four at the back, three just in front, all overlapping on the same glowing ground */
+  .lineup { width: 100%; display: grid; grid-template-columns: repeat(8, 1fr); align-items: end; --h: clamp(130px, 40vw, 175px); }
+  .lineup li { margin: 0; justify-self: center; grid-row: 1; }
+  .lineup li:nth-child(1) { grid-column: 1 / 3; }
+  .lineup li:nth-child(3) { grid-column: 3 / 5; }
+  .lineup li:nth-child(5) { grid-column: 5 / 7; }
+  .lineup li:nth-child(7) { grid-column: 7 / 9; }
+  .lineup li:nth-child(odd) img { height: calc(var(--h) * var(--s) * 0.88); }
+  .lineup li:nth-child(even) { grid-row: 2; z-index: 5; margin-top: calc(var(--h) * -0.55); }
+  .lineup li:nth-child(2) { grid-column: 2 / 4; }
+  .lineup li:nth-child(4) { grid-column: 4 / 6; }
+  .lineup li:nth-child(6) { grid-column: 6 / 8; }
+  .card-art { height: 230px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .star { opacity: 0.7; }
+  .sparkle { opacity: 0.8; }
+  html { scroll-behavior: auto; }
+}
